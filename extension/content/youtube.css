@@ -1,0 +1,12 @@
+.lf-tooltip {
+  position: fixed; z-index: 999999; background: #1e293b;
+  border: 1px solid #334155; border-radius: 8px; padding: 8px 12px;
+  color: #f1f5f9; font-size: 14px; display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5); animation: lfFadeIn 0.15s ease;
+}
+.lf-save-btn {
+  background: #3b82f6; border: none; border-radius: 6px;
+  color: white; padding: 4px 10px; cursor: pointer; font-size: 13px;
+}
+.lf-save-btn:hover { background: #2563eb; }
+@keyframes lfFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }

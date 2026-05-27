@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  planStartDate DateTime?
+  currentStage  Int       @default(1)
+  createdAt     DateTime  @default(now())
+
+  words        Word[]
+  srsCards     SrsCard[]
+  sessions     TrackingSession[]
+  dailyStats   DailyStat[]
+  planProgress PlanProgress[]
+}
+
+model Word {
+  id              String   @id @default(cuid())
+  userId          String
+  word            String
+  translation     String?
+  contextSentence String?
+  sourceUrl       String?
+  sourceTimestamp String?
+  level           String?
+  stageAdded      Int      @default(1)
+  createdAt       DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id])
+  srsCard SrsCard?
+}
+
+model SrsCard {
+  id           String   @id @default(cuid())
+  wordId       String   @unique
+  userId       String
+  nextReviewAt DateTime @default(now())
+  intervalDays Float    @default(1)
+  easeFactor   Float    @default(2.5)
+  repetitions  Int      @default(0)
+  lastQuality  Int?
+
+  word Word @relation(fields: [wordId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model TrackingSession {
+  id              String    @id @default(cuid())
+  userId          String
+  domain          String
+  language        String
+  durationSeconds Int       @default(0)
+  startedAt       DateTime  @default(now())
+  endedAt         DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model DailyStat {
+  id               String   @id @default(cuid())
+  userId           String
+  date             DateTime
+  englishMinutes   Int      @default(0)
+  ukrainianMinutes Int      @default(0)
+  englishSeconds   Int      @default(0)
+  ukrainianSeconds Int      @default(0)
+  wordsAdded       Int      @default(0)
+  cardsReviewed    Int      @default(0)
+  englishSearches  Int      @default(0)
+  streakDay        Int      @default(0)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date])
+}
+
+model PlanProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  stage       Int
+  taskKey     String
+  value       Int       @default(0)
+  completedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, taskKey])
+}

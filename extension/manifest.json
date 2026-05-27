@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "LinguaFlow",
+  "version": "1.0.0",
+  "description": "Відстежуй час на англійських сайтах і зберігай слова з YouTube",
+  "permissions": ["tabs", "storage", "activeTab", "scripting", "alarms", "contextMenus", "notifications"],
+  "host_permissions": ["*://*.youtube.com/*", "*://*/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content/youtube.js"],
+      "css": ["content/youtube.css"]
+    },
+    {
+      "matches": ["*://*/*"],
+      "js": ["content/tracker.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "LinguaFlow"
+  },
+  "externally_connectable": {
+    "matches": ["http://localhost:3000/*", "https://yourdomain.com/*"]
+  }
+}

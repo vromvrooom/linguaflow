@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 320px; background: #0f172a; color: #f1f5f9; font-family: system-ui; padding: 16px; }
+    .header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #1e293b; }
+    .logo { font-size: 18px; font-weight: 700; }
+    .status { font-size: 12px; color: #94a3b8; }
+    .status.connected { color: #22c55e; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .stat-card { background: #1e293b; border-radius: 8px; padding: 10px; }
+    .stat-label { font-size: 11px; color: #64748b; margin-bottom: 2px; }
+    .stat-value { font-size: 20px; font-weight: 700; }
+    .btn { width: 100%; padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; margin-bottom: 6px; }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-secondary { background: #1e293b; color: #94a3b8; }
+    .login-section input { width: 100%; padding: 8px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #f1f5f9; font-size: 13px; margin-bottom: 8px; }
+    .login-hint { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span>🌐</span>
+    <span class="logo">LinguaFlow</span>
+    <span class="status" id="status">● Не підключено</span>
+  </div>
+  <div id="logged-out" class="login-section">
+    <p class="login-hint">Вставте JWT токен з вашого акаунту LinguaFlow або увійдіть через сайт</p>
+    <input type="text" id="token-input" placeholder="JWT токен...">
+    <button class="btn btn-primary" id="connect-btn">Підключити</button>
+    <button class="btn btn-secondary" id="open-login-btn">Відкрити сайт для входу</button>
+  </div>
+  <div id="logged-in" style="display:none">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">🔥 Streak</div><div class="stat-value" id="streak">0</div></div>
+      <div class="stat-card"><div class="stat-label">📚 Слів</div><div class="stat-value" id="words">0</div></div>
+      <div class="stat-card"><div class="stat-label">⏱ Хвилин сьогодні</div><div class="stat-value" id="minutes">0</div></div>
+      <div class="stat-card"><div class="stat-label">🔍 Пошуків</div><div class="stat-value" id="searches">0</div></div>
+    </div>
+    <button class="btn btn-primary" id="dashboard-btn">Відкрити дашборд</button>
+    <button class="btn btn-secondary" id="logout-btn">Вийти</button>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

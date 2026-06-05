@@ -1,3 +1,6 @@
+const API_URL = 'http://194.28.84.152/api';
+const APP_URL = 'http://194.28.84.152';
+
 const statusEl = document.getElementById('status');
 const loggedOut = document.getElementById('logged-out');
 const loggedIn = document.getElementById('logged-in');
@@ -46,11 +49,11 @@ document.getElementById('connect-btn').addEventListener('click', () => {
 });
 
 document.getElementById('open-login-btn').addEventListener('click', () => {
-  chrome.tabs.create({ url: 'http://localhost:3000/login' });
+  chrome.tabs.create({ url: `${APP_URL}/login` });
 });
 
 document.getElementById('dashboard-btn').addEventListener('click', () => {
-  chrome.tabs.create({ url: 'http://localhost:3000/dashboard' });
+  chrome.tabs.create({ url: `${APP_URL}/dashboard` });
 });
 
 document.getElementById('logout-btn').addEventListener('click', () => {

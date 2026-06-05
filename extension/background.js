@@ -1,4 +1,5 @@
-const BACKEND = 'http://localhost:4000';
+const API_URL = 'http://194.28.84.152/api';
+const APP_URL = 'http://194.28.84.152';
 const MYMEMORY = 'https://api.mymemory.translated.net/get';
 
 // Контекстне меню — створюємо при інсталяції, воно зберігається Chrome-ом між перезапусками SW
@@ -15,7 +16,7 @@ async function translateWord(word, sentence) {
   const { token } = await chrome.storage.local.get(['token']);
   if (!token) return null;
   try {
-    const res = await fetch(`${BACKEND}/translate`, {
+    const res = await fetch(`${API_URL}/translate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ word, sentence: sentence || undefined, sourceLang: 'en', targetLang: 'uk' }),
@@ -106,7 +107,7 @@ async function sendToBackend(endpoint, method, data) {
 
   let res;
   try {
-    res = await fetch(`${BACKEND}${endpoint}`, options);
+    res = await fetch(`${API_URL}${endpoint}`, options);
   } catch (err) {
     console.error('[LF BG] fetch failed (network error):', err.message);
     throw err;

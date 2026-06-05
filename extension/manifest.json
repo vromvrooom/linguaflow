@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Відстежуй час на англійських сайтах і зберігай слова з YouTube",
   "permissions": ["tabs", "storage", "activeTab", "scripting", "alarms", "contextMenus", "notifications"],
-  "host_permissions": ["*://*.youtube.com/*", "*://*/*"],
+  "host_permissions": ["*://*.youtube.com/*", "*://*/*", "http://194.28.84.152/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {
@@ -22,6 +22,6 @@
     "default_title": "LinguaFlow"
   },
   "externally_connectable": {
-    "matches": ["http://localhost:3000/*", "https://yourdomain.com/*"]
+    "matches": ["http://localhost:3000/*", "https://yourdomain.com/*", "http://194.28.84.152/*"]
   }
 }

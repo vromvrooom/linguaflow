@@ -8,3 +8,4 @@ prisma/migrations/
 .claude/
 webapp/.env.local
 backend/.env
+.claudeignore

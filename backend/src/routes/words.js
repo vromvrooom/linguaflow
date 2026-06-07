@@ -132,6 +132,7 @@ router.delete('/:id', auth, async (req, res) => {
     return res.status(404).json({ error: 'Word not found' });
   }
 
+  await prisma.srsCard.deleteMany({ where: { wordId: req.params.id } });
   await prisma.word.delete({ where: { id: req.params.id } });
   res.status(204).send();
 });

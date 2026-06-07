@@ -192,8 +192,13 @@ export default function VocabularyPage() {
     if (!window.confirm(`Видалити слово "${wordText}"?`)) return;
     setDeleting(id);
     try {
-      await fetch(`${API}/words/${id}`, { method: 'DELETE', headers: authHeaders() });
-      fetchWords(pagination.page);
+      console.log('[LF] DELETE', `${API}/words/${id}`);
+      const res = await fetch(`${API}/words/${id}`, { method: 'DELETE', headers: authHeaders() });
+      console.log('[LF] DELETE response status:', res.status);
+      if (res.status === 401) { router.replace('/login'); return; }
+      if (!res.ok) return;
+      setWords((prev) => prev.filter((w) => w.id !== id));
+      setPagination((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));
     } finally {
       setDeleting(null);
     }

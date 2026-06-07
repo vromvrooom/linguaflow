@@ -32,6 +32,8 @@ async function translateWord(word, sentence) {
 }
 
 function showNotification(title, message) {
+  console.log('[LF BG] showNotification:', title, '|', message, '| chrome.notifications:', !!chrome.notifications);
+  if (!chrome.notifications) return;
   chrome.notifications.create(`lf-${Date.now()}`, {
     type: 'basic',
     iconUrl: 'icons/icon48.png',
@@ -142,6 +144,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
   if (type === 'SAVE_WORD') {
     const cleanWord = (message.word ?? '').replace(/[^a-zA-Z'-]/g, '').toLowerCase().trim();
+    const wordLabel = cleanWord || message.word;
 
     const doSave = (translation) => sendToBackend('/words', 'POST', {
       word: cleanWord || message.word,
@@ -150,17 +153,24 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       sourceUrl: message.sourceUrl,
     });
 
+    const onSaved = (data) => {
+      showNotification('LinguaFlow', `✓ "${wordLabel}" збережено`);
+      sendResponse({ ok: true, data });
+    };
+    const onFailed = (err) => {
+      showNotification('LinguaFlow — Помилка', `Не вдалося зберегти "${wordLabel}": ${err.message}`);
+      sendResponse({ ok: false, error: err.message });
+    };
+
     if (message.translation) {
       // translation already fetched by the tooltip — save immediately
-      doSave(message.translation)
-        .then((data) => sendResponse({ ok: true, data }))
-        .catch((err) => sendResponse({ ok: false, error: err.message }));
+      doSave(message.translation).then(onSaved).catch(onFailed);
     } else {
       // auto-translate via backend then save
       translateWord(message.word, message.contextSentence)
         .then((result) => doSave(result?.wordTranslation ?? null))
-        .then((data) => sendResponse({ ok: true, data }))
-        .catch((err) => sendResponse({ ok: false, error: err.message }));
+        .then(onSaved)
+        .catch(onFailed);
     }
     return true;
   }

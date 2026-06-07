@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 
-const API = 'http://localhost:4000';
+const API = '/api';
 
 interface SrsCard {
   id: string;

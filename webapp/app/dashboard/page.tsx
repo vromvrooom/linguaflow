@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { removeToken } from '@/lib/auth';
 
-const API = 'http://localhost:4000';
+const API = '/api';
 
 function authHeaders() {
   return { Authorization: `Bearer ${localStorage.getItem('auth_token')}` };

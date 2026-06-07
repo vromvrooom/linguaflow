@@ -6,7 +6,7 @@ import {
 } from 'recharts';
 import Header from '@/components/Header';
 
-const API = 'http://localhost:4000';
+const API = '/api';
 
 interface DailyStat {
   date: string;

@@ -44,7 +44,7 @@ const STAGE_META = [
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface PlanRecord { taskKey: string; value: number; completedAt: string | null; }
-interface DashData { wordCount: number; cardsDue: number; email: string; }
+interface DashData { wordCount: number; cardsDue: number; email: string; wordsPerDay: number; }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -153,17 +153,22 @@ export default function DashboardPage() {
     if (!token) { router.replace('/login'); return; }
 
     const h = authHeaders();
-    const [wordsRes, cardsRes, meRes, planRes] = await Promise.allSettled([
+    const [wordsRes, cardsRes, meRes, planRes, weeklyRes] = await Promise.allSettled([
       fetch(`${API}/words?limit=1`, { headers: h }).then((r) => r.json()),
       fetch(`${API}/cards/due?limit=100`, { headers: h }).then((r) => r.json()),
       fetch(`${API}/auth/me`, { headers: h }).then((r) => r.json()),
       fetch(`${API}/plan`, { headers: h }).then((r) => r.json()),
+      fetch(`${API}/stats/weekly`, { headers: h }).then((r) => r.json()),
     ]);
+
+    const weekly = weeklyRes.status === 'fulfilled' && Array.isArray(weeklyRes.value) ? weeklyRes.value : [];
+    const weekWords = weekly.reduce((sum: number, s: { wordsAdded?: number }) => sum + (s.wordsAdded ?? 0), 0);
 
     setData({
       wordCount: wordsRes.status === 'fulfilled' ? (wordsRes.value?.pagination?.total ?? 0) : 0,
       cardsDue:  cardsRes.status === 'fulfilled' ? (Array.isArray(cardsRes.value) ? cardsRes.value.length : 0) : 0,
       email:     meRes.status === 'fulfilled' ? (meRes.value?.email ?? '') : '',
+      wordsPerDay: weekWords / 7,
     });
     setPlan(planRes.status === 'fulfilled' && Array.isArray(planRes.value) ? planRes.value : []);
     setLoading(false);
@@ -201,8 +206,20 @@ export default function DashboardPage() {
     );
   }
 
-  const { wordCount, cardsDue, email } = data!;
+  const { wordCount, cardsDue, email, wordsPerDay } = data!;
   const stage = activeStage(wordCount);
+
+  // Прогноз: скільки днів до кожної стадії при поточному темпі
+  const PACE_STAGES = [
+    { label: 'Стадія 1', target: 1500 },
+    { label: 'Стадія 2', target: 2500 },
+    { label: 'Стадія 3', target: 4000 },
+  ];
+  function daysToTarget(target: number): number | null {
+    if (wordCount >= target) return 0;
+    if (wordsPerDay <= 0) return null;
+    return Math.ceil((target - wordCount) / wordsPerDay);
+  }
   const planMap = Object.fromEntries(plan.map((r) => [r.taskKey, r]));
 
   return (
@@ -243,6 +260,40 @@ export default function DashboardPage() {
               <p className="text-3xl font-bold text-white">{value}</p>
             </div>
           ))}
+        </div>
+
+        {/* Темп вивчення */}
+        <div className="rounded-xl border border-slate-700 bg-slate-800 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xl">🚀</span>
+            <h2 className="font-semibold text-white">При такому темпі:</h2>
+          </div>
+          {wordsPerDay <= 0 ? (
+            <p className="text-slate-400 text-sm">Додавай слова щодня щоб побачити прогноз</p>
+          ) : (
+            <>
+              <p className="text-slate-400 text-xs mb-3">
+                Середньо {wordsPerDay.toFixed(1)} слів/день за останні 7 днів
+              </p>
+              <div className="space-y-2">
+                {PACE_STAGES.map(({ label, target }) => {
+                  const days = daysToTarget(target);
+                  return (
+                    <div key={target} className="flex items-center justify-between text-sm">
+                      <span className="text-slate-300">{label} ({target} слів):</span>
+                      <span className="font-medium text-white ml-4 shrink-0">
+                        {days === 0 ? (
+                          <span className="text-green-400">✓ досягнуто</span>
+                        ) : (
+                          `через ${days} днів`
+                        )}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Plan checklist */}

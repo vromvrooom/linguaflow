@@ -55,6 +55,37 @@ router.get('/weekly', auth, async (req, res) => {
   res.json(result);
 });
 
+router.get('/monthly', auth, async (req, res) => {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setUTCDate(thirtyDaysAgo.getUTCDate() - 29);
+
+  const stats = await prisma.dailyStat.findMany({
+    where: {
+      userId: req.user.id,
+      date: { gte: thirtyDaysAgo, lte: today },
+    },
+    orderBy: { date: 'asc' },
+  });
+
+  // Fill in missing days with zeros so the chart always has 30 points
+  const statsMap = new Map(stats.map((s) => [s.date.toISOString().slice(0, 10), s]));
+  const result = [];
+
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(thirtyDaysAgo);
+    d.setUTCDate(d.getUTCDate() + i);
+    const key = d.toISOString().slice(0, 10);
+    result.push(
+      statsMap.get(key) ?? { ...EMPTY_STAT, date: d.toISOString(), userId: req.user.id },
+    );
+  }
+
+  res.json(result);
+});
+
 if (process.env.NODE_ENV !== 'production') {
   router.get('/debug', auth, async (req, res) => {
     const startOfDay = new Date();

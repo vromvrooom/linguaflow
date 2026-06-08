@@ -9,6 +9,7 @@ const NAV = [
   { href: '/vocabulary', label: 'Словник' },
   { href: '/cards', label: 'Картки' },
   { href: '/stats', label: 'Статистика' },
+  { href: '/progress', label: 'Прогрес' },
 ];
 
 export default function Header() {

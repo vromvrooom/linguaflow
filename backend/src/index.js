@@ -10,10 +10,29 @@ const cardsRoutes = require('./routes/cards');
 const planRoutes = require('./routes/plan');
 const translateRoutes = require('./routes/translate');
 
+const { register, httpRequestsTotal, httpRequestDuration } = require('./lib/metrics');
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Measure request count and duration for every request
+app.use((req, res, next) => {
+  const end = httpRequestDuration.startTimer();
+  res.on('finish', () => {
+    const route = req.baseUrl + (req.route ? req.route.path : req.path);
+    const labels = { route, method: req.method, status: res.statusCode };
+    httpRequestsTotal.inc(labels);
+    end(labels);
+  });
+  next();
+});
+
+app.get('/metrics', async (_req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
 app.use('/auth', authRoutes);

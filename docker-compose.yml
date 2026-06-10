@@ -63,6 +63,37 @@ services:
     networks:
       - linguaflow_network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: linguaflow_prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - linguaflow_network
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: linguaflow_node_exporter
+    restart: always
+    ports:
+      - "9100:9100"
+    networks:
+      - linguaflow_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: linguaflow_grafana
+    restart: always
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    networks:
+      - linguaflow_network
+
 volumes:
   postgres_data:
   redis_data:

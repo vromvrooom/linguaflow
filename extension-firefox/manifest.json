@@ -10,10 +10,10 @@
     }
   },
   "permissions": ["tabs", "storage", "activeTab", "scripting", "contextMenus", "notifications"],
-  "host_permissions": ["*://*.youtube.com/*", "*://*/*", "http://194.28.84.152/*"],
+  "host_permissions": ["*://*.youtube.com/*", "*://*/*", "https://linguaflow1.duckdns.org/*"],
   "background": { "scripts": ["background.js"], "type": "module" },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src http://194.28.84.152 https://194.28.84.152"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://linguaflow1.duckdns.org"
   },
   "content_scripts": [
     {

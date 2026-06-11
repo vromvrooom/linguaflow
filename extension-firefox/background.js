@@ -1,7 +1,7 @@
 const isFirefox = typeof browser !== 'undefined';
 
-const API_URL = 'http://194.28.84.152/api';
-const APP_URL = 'http://194.28.84.152';
+const API_URL = 'https://linguaflow1.duckdns.org/api';
+const APP_URL = 'https://linguaflow1.duckdns.org';
 const MYMEMORY = 'https://api.mymemory.translated.net/get';
 
 // Контекстне меню — створюємо при інсталяції, воно зберігається Chrome-ом між перезапусками SW

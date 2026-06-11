@@ -1,5 +1,5 @@
-const API_URL = 'http://194.28.84.152/api';
-const APP_URL = 'http://194.28.84.152';
+const API_URL = 'https://linguaflow1.duckdns.org/api';
+const APP_URL = 'https://linguaflow1.duckdns.org';
 
 const statusEl = document.getElementById('status');
 const loggedOut = document.getElementById('logged-out');

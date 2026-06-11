@@ -72,6 +72,7 @@ services:
       - "--web.external-url=http://194.28.84.152/prometheus/"
       - "--web.route-prefix=/"
     volumes:
+      - prometheus_data:/prometheus
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - linguaflow_network
@@ -92,12 +93,16 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_SERVER_ROOT_URL: http://194.28.84.152:3001
+    volumes:
+      - grafana_data:/var/lib/grafana
     networks:
       - linguaflow_network
 
 volumes:
   postgres_data:
   redis_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   linguaflow_network:

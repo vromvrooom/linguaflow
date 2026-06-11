@@ -88,8 +88,6 @@ services:
     image: grafana/grafana:latest
     container_name: linguaflow_grafana
     restart: always
-    ports:
-      - "3001:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_SERVER_ROOT_URL: http://194.28.84.152/grafana/

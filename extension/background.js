@@ -124,22 +124,6 @@ async function sendToBackend(endpoint, method, data) {
   return json;
 }
 
-// Зовнішні повідомлення від webapp (вимагає externally_connectable в manifest)
-chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
-  console.log('[LF BG] External message from:', sender.url, 'type:', message.type);
-
-  if (message.type === 'SET_AUTH') {
-    chrome.storage.local.set(
-      { token: message.token, userId: message.userId, email: message.email },
-      () => {
-        console.log('[LF BG] Auth received from webapp, user:', message.email);
-        sendResponse({ success: true });
-      }
-    );
-    return true;
-  }
-});
-
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   const { type } = message;
   console.log('[LF BG] Message received:', type, message);

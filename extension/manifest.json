@@ -20,8 +20,5 @@
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "LinguaFlow"
-  },
-  "externally_connectable": {
-    "matches": ["https://linguaflow1.duckdns.org/*", "http://localhost:3000/*"]
   }
 }

@@ -39,10 +39,7 @@ services:
       - linguaflow_network
 
   webapp:
-    build:
-      context: ./webapp
-      args:
-        NEXT_PUBLIC_EXTENSION_ID: ${NEXT_PUBLIC_EXTENSION_ID:-}
+    build: ./webapp
     container_name: linguaflow_webapp
     restart: always
     environment:

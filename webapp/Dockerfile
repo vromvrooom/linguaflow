@@ -3,9 +3,6 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-# NEXT_PUBLIC_* vars are inlined at build time, so they must be available here
-ARG NEXT_PUBLIC_EXTENSION_ID
-ENV NEXT_PUBLIC_EXTENSION_ID=$NEXT_PUBLIC_EXTENSION_ID
 RUN npm run build
 
 FROM node:20-alpine

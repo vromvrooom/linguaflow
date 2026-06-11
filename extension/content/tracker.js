@@ -1,4 +1,19 @@
 (function() {
+  // Автологін через postMessage від webapp — універсально, без Extension ID
+  window.addEventListener('message', (event) => {
+    if (event.origin !== 'https://linguaflow1.duckdns.org' &&
+        event.origin !== 'http://localhost:3000') return;
+    if (event.data?.source !== 'linguaflow-webapp') return;
+    if (event.data?.type === 'LINGUAFLOW_SET_AUTH') {
+      chrome.runtime.sendMessage({
+        type: 'SET_TOKEN',
+        token: event.data.token,
+        userId: event.data.userId,
+        email: event.data.email
+      });
+    }
+  });
+
   const hostname = window.location.hostname;
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
   const isWebapp = (isLocalhost && window.location.port === '3000') || hostname === 'linguaflow1.duckdns.org';

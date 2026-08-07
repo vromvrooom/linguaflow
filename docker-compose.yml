@@ -26,12 +26,12 @@ services:
     container_name: linguaflow_backend
     restart: always
     environment:
-      DATABASE_URL: postgresql://linguaflow:linguaflow_secret@postgres:5432/linguaflow_db
-      REDIS_URL: redis://redis:6379
-      JWT_SECRET: change_me_in_production_use_long_random_string
-      DEEPL_API_KEY: aba2dc9d-eb67-464f-b393-5d3dc6d2f01c:fx
-      PORT: 4000
-      NODE_ENV: production
+      DATABASE_URL: "postgresql://linguaflow:linguaflow_secret@postgres:5432/linguaflow_db"
+      REDIS_URL: "redis://redis:6379"
+      JWT_SECRET: "new_server_super_secret_2026"
+      DEEPL_API_KEY: "aba2dc9d-eb67-464f-b393-5d3dc6d2f01c:fx"
+      PORT: "4000"
+      NODE_ENV: "production"
     depends_on:
       - postgres
       - redis

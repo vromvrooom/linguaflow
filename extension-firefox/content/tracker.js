@@ -1,7 +1,7 @@
 (function() {
   // Автологін через postMessage від webapp — універсально, без Extension ID
   window.addEventListener('message', (event) => {
-    if (event.origin !== 'https://linguaflow1.duckdns.org' &&
+    if (event.origin !== 'https://lingua.varom.pp.ua' &&
         event.origin !== 'http://localhost:3000') return;
     if (event.data?.source !== 'linguaflow-webapp') return;
     if (event.data?.type === 'LINGUAFLOW_SET_AUTH') {

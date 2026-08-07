@@ -10,10 +10,10 @@
     }
   },
   "permissions": ["tabs", "storage", "activeTab", "scripting", "contextMenus", "notifications"],
-  "host_permissions": ["*://*.youtube.com/*", "*://*/*", "https://linguaflow1.duckdns.org/*"],
+  "host_permissions": ["*://*.youtube.com/*", "*://*/*", "https://lingua.varom.pp.ua/*"],
   "background": { "scripts": ["background.js"], "type": "module" },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://linguaflow1.duckdns.org"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://lingua.varom.pp.ua"
   },
   "content_scripts": [
     {

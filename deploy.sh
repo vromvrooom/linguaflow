@@ -6,4 +6,4 @@ docker compose build --no-cache
 docker compose up -d
 echo "Running migrations..."
 docker compose exec backend npx prisma migrate deploy
-echo "Done! App running on http://194.28.84.152"
+echo "Done! App running on https://lingua.varom.pp.ua"

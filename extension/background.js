@@ -1,5 +1,5 @@
-const API_URL = 'https://linguaflow1.duckdns.org/api';
-const APP_URL = 'https://linguaflow1.duckdns.org';
+const API_URL = 'https://lingua.varom.pp.ua/api';
+const APP_URL = 'https://lingua.varom.pp.ua';
 const MYMEMORY = 'https://api.mymemory.translated.net/get';
 
 // Контекстне меню — створюємо при інсталяції, воно зберігається Chrome-ом між перезапусками SW

@@ -1,7 +1,7 @@
 (function() {
   // Автологін через postMessage від webapp — універсально, без Extension ID
   window.addEventListener('message', (event) => {
-    if (event.origin !== 'https://linguaflow1.duckdns.org' &&
+    if (event.origin !== 'https://lingua.varom.pp.ua' &&
         event.origin !== 'http://localhost:3000') return;
     if (event.data?.source !== 'linguaflow-webapp') return;
     if (event.data?.type === 'LINGUAFLOW_SET_AUTH') {
@@ -16,7 +16,7 @@
 
   const hostname = window.location.hostname;
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-  const isWebapp = (isLocalhost && window.location.port === '3000') || hostname === 'linguaflow1.duckdns.org';
+  const isWebapp = (isLocalhost && window.location.port === '3000') || hostname === 'lingua.varom.pp.ua';
   const isChromeExtension = window.location.protocol === 'chrome-extension:';
 
   // Автологін: якщо відкрита webapp — читаємо токен і надсилаємо в background

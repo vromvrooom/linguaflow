@@ -43,7 +43,7 @@ services:
     container_name: linguaflow_webapp
     restart: always
     environment:
-      NEXT_PUBLIC_API_URL: http://194.28.84.152/api
+      NEXT_PUBLIC_API_URL: https://lingua.varom.pp.ua/api
     depends_on:
       - backend
     networks:
@@ -71,7 +71,7 @@ services:
     restart: always
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--web.external-url=http://194.28.84.152/prometheus/"
+      - "--web.external-url=https://lingua.varom.pp.ua/prometheus/"
       - "--web.route-prefix=/"
     volumes:
       - prometheus_data:/prometheus

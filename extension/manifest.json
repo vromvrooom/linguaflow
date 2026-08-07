@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Відстежуй час на англійських сайтах і зберігай слова з YouTube",
   "permissions": ["tabs", "storage", "activeTab", "scripting", "alarms", "contextMenus", "notifications"],
-  "host_permissions": ["*://*.youtube.com/*", "*://*/*", "https://linguaflow1.duckdns.org/*"],
+  "host_permissions": ["*://*.youtube.com/*", "*://*/*", "https://lingua.varom.pp.ua/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {

@@ -5,9 +5,19 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
 } from 'recharts';
+import { BookMarked, Calendar, TrendingUp, Flame, type LucideIcon } from 'lucide-react';
 import Header from '@/components/Header';
 
 const API = '/api';
+
+// Shared chart theme — matches the neutral palette
+const CHART = {
+  grid: '#262626',
+  tick: '#737373',
+  fill: '#e5e5e5',
+  muted: '#737373',
+  tooltip: { background: '#1a1a1a', border: '1px solid #262626', borderRadius: '8px', color: '#fafafa' },
+};
 
 interface DailyStat {
   date: string;
@@ -19,15 +29,15 @@ interface DailyStat {
   streakDay: number;
 }
 
-interface StatCardProps { label: string; value: string | number; icon: string; sub?: string; }
+interface StatCardProps { label: string; value: string | number; icon: LucideIcon; sub?: string; }
 
-function StatCard({ label, value, icon, sub }: StatCardProps) {
+function StatCard({ label, value, icon: Icon, sub }: StatCardProps) {
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 space-y-1">
-      <span className="text-xl">{icon}</span>
-      <p className="text-slate-400 text-sm">{label}</p>
-      <p className="text-3xl font-bold text-white">{value}</p>
-      {sub && <p className="text-slate-500 text-xs">{sub}</p>}
+    <div className="bg-card border border-line rounded-xl p-5 space-y-1">
+      <Icon size={18} strokeWidth={1.75} className="text-dim" />
+      <p className="text-dim text-sm">{label}</p>
+      <p className="text-3xl font-semibold text-ink tracking-tight">{value}</p>
+      {sub && <p className="text-dim/70 text-xs">{sub}</p>}
     </div>
   );
 }
@@ -39,13 +49,13 @@ function StageBar({ label, value, target }: { label: string; value: number; targ
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-sm text-slate-200">{label}</span>
-        <span className="text-xs text-slate-400">{clamped}/{target} слів</span>
+        <span className="text-sm text-ink">{label}</span>
+        <span className="text-xs text-dim tabular-nums">{clamped}/{target} слів</span>
       </div>
-      <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-line rounded-full overflow-hidden">
         <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, background: done ? '#22c55e' : '#3b82f6' }}
+          className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-ink' : 'bg-accent'}`}
+          style={{ width: `${pct}%` }}
         />
       </div>
     </div>
@@ -102,66 +112,63 @@ export default function ProgressPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900">
+      <div className="min-h-screen bg-canvas">
         <Header />
         <div className="flex items-center justify-center h-[60vh]">
-          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-line border-t-accent rounded-full animate-spin" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
+    <div className="min-h-screen bg-canvas text-ink">
       <Header />
 
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-10">
         <div>
-          <h1 className="text-2xl font-bold text-white">Прогрес вивчення</h1>
-          <p className="text-slate-400 text-sm mt-1">Динаміка за останні 30 днів</p>
+          <h1 className="text-2xl font-semibold text-ink tracking-tight">Прогрес вивчення</h1>
+          <p className="text-dim text-sm mt-1">Динаміка за останні 30 днів</p>
         </div>
 
         {/* Секція 1 — Загальна статистика */}
         <section>
-          <h2 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-medium text-dim uppercase tracking-wider mb-4">
             Загальна статистика
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="Всього слів вивчено" value={wordTotal} icon="📚" sub="у словнику" />
-            <StatCard label="Днів активності" value={activeDays} icon="📅" sub="за 30 днів" />
-            <StatCard label="Середній streak" value={`${avgStreak} дн.`} icon="📈" sub="в середньому" />
-            <StatCard label="Найдовший streak" value={`${longestStreak} дн.`} icon="🔥" sub="рекорд" />
+            <StatCard label="Всього слів вивчено" value={wordTotal} icon={BookMarked} sub="у словнику" />
+            <StatCard label="Днів активності" value={activeDays} icon={Calendar} sub="за 30 днів" />
+            <StatCard label="Середній streak" value={`${avgStreak} дн.`} icon={TrendingUp} sub="в середньому" />
+            <StatCard label="Найдовший streak" value={`${longestStreak} дн.`} icon={Flame} sub="рекорд" />
           </div>
         </section>
 
         {/* Секція 2 — Графік слів по тижнях */}
         <section>
-          <h2 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-medium text-dim uppercase tracking-wider mb-4">
             Слова додані по днях
           </h2>
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
+          <div className="bg-card border border-line rounded-xl p-6">
             {!hasWordData ? (
               <div className="flex flex-col items-center justify-center h-40 gap-2">
-                <p className="text-slate-500">Даних поки немає</p>
-                <p className="text-slate-600 text-sm">Додавай слова щодня щоб побачити графік</p>
+                <p className="text-dim">Даних поки немає</p>
+                <p className="text-dim/70 text-sm">Додавай слова щодня щоб побачити графік</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={240}>
                 <AreaChart data={wordsChart} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="wordsGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.6} />
-                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.05} />
+                      <stop offset="0%" stopColor={CHART.fill} stopOpacity={0.35} />
+                      <stop offset="100%" stopColor={CHART.fill} stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={20} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                  <Tooltip
-                    contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#f1f5f9' }}
-                    cursor={{ stroke: '#334155' }}
-                  />
-                  <Area type="monotone" dataKey="слова" stroke="#3b82f6" strokeWidth={2} fill="url(#wordsGradient)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
+                  <XAxis dataKey="date" tick={{ fill: CHART.tick, fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={20} />
+                  <YAxis tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={CHART.tooltip} cursor={{ stroke: CHART.grid }} />
+                  <Area type="monotone" dataKey="слова" stroke={CHART.fill} strokeWidth={2} fill="url(#wordsGradient)" />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -170,26 +177,23 @@ export default function ProgressPage() {
 
         {/* Секція 3 — Графік часу занурення */}
         <section>
-          <h2 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-medium text-dim uppercase tracking-wider mb-4">
             Час занурення по днях (хв)
           </h2>
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
+          <div className="bg-card border border-line rounded-xl p-6">
             {!hasMinuteData ? (
               <div className="flex flex-col items-center justify-center h-40 gap-2">
-                <p className="text-slate-500">Даних поки немає</p>
-                <p className="text-slate-600 text-sm">Встанови розширення Chrome щоб відстежувати час</p>
+                <p className="text-dim">Даних поки немає</p>
+                <p className="text-dim/70 text-sm">Встанови розширення Chrome щоб відстежувати час</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={minutesChart} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={20} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                  <Tooltip
-                    contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#f1f5f9' }}
-                    cursor={{ fill: '#ffffff0d' }}
-                  />
-                  <Bar dataKey="хвилини" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
+                  <XAxis dataKey="date" tick={{ fill: CHART.tick, fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={20} />
+                  <YAxis tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={CHART.tooltip} cursor={{ fill: '#ffffff0d' }} />
+                  <Bar dataKey="хвилини" fill={CHART.muted} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -198,10 +202,10 @@ export default function ProgressPage() {
 
         {/* Секція 4 — Прогрес по стадіях */}
         <section>
-          <h2 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">
+          <h2 className="text-sm font-medium text-dim uppercase tracking-wider mb-4">
             Прогрес по стадіях
           </h2>
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 space-y-5">
+          <div className="bg-card border border-line rounded-xl p-6 space-y-5">
             <StageBar label="Стадія 1" value={wordTotal} target={1500} />
             <StageBar label="Стадія 2" value={wordTotal} target={2500} />
             <StageBar label="Стадія 3" value={wordTotal} target={4000} />

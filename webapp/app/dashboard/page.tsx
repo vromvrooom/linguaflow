@@ -1,7 +1,11 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { removeToken } from '@/lib/auth';
+import {
+  BookMarked, RefreshCw, Flame, Target, Gauge, Check, Plus, Minus,
+  RotateCcw, Library, LineChart, type LucideIcon,
+} from 'lucide-react';
+import Header from '@/components/Header';
 
 const API = '/api';
 
@@ -44,7 +48,7 @@ const STAGE_META = [
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface PlanRecord { taskKey: string; value: number; completedAt: string | null; }
-interface DashData { wordCount: number; cardsDue: number; email: string; wordsPerDay: number; }
+interface DashData { wordCount: number; cardsDue: number; streak: number; wordsPerDay: number; }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -59,10 +63,10 @@ function activeStage(wordCount: number): number {
 function ProgressBar({ value, max }: { value: number; max: number }) {
   const pct = Math.min(100, Math.round((value / max) * 100));
   return (
-    <div className="mt-1.5 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+    <div className="mt-1.5 h-1 bg-line rounded-full overflow-hidden">
       <div
-        className="h-full rounded-full transition-all duration-500"
-        style={{ width: `${pct}%`, background: pct >= 100 ? '#22c55e' : '#3b82f6' }}
+        className="h-full rounded-full bg-accent transition-all duration-500"
+        style={{ width: `${pct}%` }}
       />
     </div>
   );
@@ -87,10 +91,11 @@ function TaskRow({
     return (
       <div className={`flex flex-col gap-0.5 py-2 ${finished ? 'opacity-60' : ''}`}>
         <div className="flex items-center justify-between">
-          <span className={`text-sm ${finished ? 'line-through text-slate-500' : 'text-slate-200'}`}>
-            {finished && '✓ '}{task.label}
+          <span className={`flex items-center gap-1.5 text-sm ${finished ? 'line-through text-dim' : 'text-ink'}`}>
+            {finished && <Check size={16} strokeWidth={2} className="shrink-0" />}
+            {task.label}
           </span>
-          <span className="text-xs text-slate-400 ml-4 shrink-0">{Math.min(wordCount, target)}/{target}</span>
+          <span className="text-xs text-dim ml-4 shrink-0 tabular-nums">{clamped}/{target}</span>
         </div>
         {!finished && <ProgressBar value={clamped} max={target} />}
       </div>
@@ -104,11 +109,11 @@ function TaskRow({
         className="flex items-center gap-3 py-2 text-left w-full group"
       >
         <span className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors
-          ${done ? 'bg-green-500 border-green-500' : 'border-slate-500 group-hover:border-blue-400'}`}
+          ${done ? 'bg-accent border-accent text-canvas' : 'border-line group-hover:border-dim'}`}
         >
-          {done && <span className="text-white text-xs">✓</span>}
+          {done && <Check size={12} strokeWidth={3} />}
         </span>
-        <span className={`text-sm ${done ? 'line-through text-slate-500' : 'text-slate-200'}`}>
+        <span className={`text-sm ${done ? 'line-through text-dim' : 'text-ink'}`}>
           {task.label}
         </span>
       </button>
@@ -120,22 +125,39 @@ function TaskRow({
   const finished = count >= target;
   return (
     <div className="flex items-center justify-between py-2">
-      <span className={`text-sm ${finished ? 'line-through text-slate-500' : 'text-slate-200'}`}>
-        {finished && '✓ '}{task.label}
+      <span className={`flex items-center gap-1.5 text-sm ${finished ? 'line-through text-dim' : 'text-ink'}`}>
+        {finished && <Check size={16} strokeWidth={2} className="shrink-0" />}
+        {task.label}
       </span>
       <div className="flex items-center gap-2 shrink-0 ml-4">
         <button
           onClick={() => onCounterChange(task.key, task.stage, -1, count)}
           disabled={count <= 0}
-          className="w-6 h-6 rounded bg-slate-700 hover:bg-slate-600 text-white text-sm disabled:opacity-30 transition-colors"
-        >−</button>
-        <span className="text-sm text-slate-200 w-12 text-center">{count}/{target}</span>
+          aria-label="Зменшити"
+          className="w-6 h-6 rounded flex items-center justify-center border border-line text-dim hover:text-ink hover:bg-hover disabled:opacity-30 transition-colors"
+        ><Minus size={14} strokeWidth={2} /></button>
+        <span className="text-sm text-ink w-12 text-center tabular-nums">{count}/{target}</span>
         <button
           onClick={() => onCounterChange(task.key, task.stage, 1, count)}
           disabled={count >= target}
-          className="w-6 h-6 rounded bg-slate-700 hover:bg-slate-600 text-white text-sm disabled:opacity-30 transition-colors"
-        >+</button>
+          aria-label="Збільшити"
+          className="w-6 h-6 rounded flex items-center justify-center border border-line text-dim hover:text-ink hover:bg-hover disabled:opacity-30 transition-colors"
+        ><Plus size={14} strokeWidth={2} /></button>
       </div>
+    </div>
+  );
+}
+
+function StatCard({
+  label, value, icon: Icon, accent,
+}: { label: string; value: string | number; icon: LucideIcon; accent?: boolean }) {
+  return (
+    <div className={`rounded-xl border p-5 flex flex-col gap-2 transition-colors ${
+      accent ? 'border-dim bg-active' : 'border-line bg-card'
+    }`}>
+      <Icon size={18} strokeWidth={1.75} className="text-dim" />
+      <p className="text-dim text-sm">{label}</p>
+      <p className="text-3xl font-semibold text-ink tracking-tight">{value}</p>
     </div>
   );
 }
@@ -153,12 +175,12 @@ export default function DashboardPage() {
     if (!token) { router.replace('/login'); return; }
 
     const h = authHeaders();
-    const [wordsRes, cardsRes, meRes, planRes, weeklyRes] = await Promise.allSettled([
+    const [wordsRes, cardsRes, planRes, weeklyRes, dailyRes] = await Promise.allSettled([
       fetch(`${API}/words?limit=1`, { headers: h }).then((r) => r.json()),
       fetch(`${API}/cards/due?limit=100`, { headers: h }).then((r) => r.json()),
-      fetch(`${API}/auth/me`, { headers: h }).then((r) => r.json()),
       fetch(`${API}/plan`, { headers: h }).then((r) => r.json()),
       fetch(`${API}/stats/weekly`, { headers: h }).then((r) => r.json()),
+      fetch(`${API}/stats/daily`, { headers: h }).then((r) => r.json()),
     ]);
 
     const weekly = weeklyRes.status === 'fulfilled' && Array.isArray(weeklyRes.value) ? weeklyRes.value : [];
@@ -167,7 +189,7 @@ export default function DashboardPage() {
     setData({
       wordCount: wordsRes.status === 'fulfilled' ? (wordsRes.value?.pagination?.total ?? 0) : 0,
       cardsDue:  cardsRes.status === 'fulfilled' ? (Array.isArray(cardsRes.value) ? cardsRes.value.length : 0) : 0,
-      email:     meRes.status === 'fulfilled' ? (meRes.value?.email ?? '') : '',
+      streak:    dailyRes.status === 'fulfilled' ? (dailyRes.value?.streakDay ?? 0) : 0,
       wordsPerDay: weekWords / 7,
     });
     setPlan(planRes.status === 'fulfilled' && Array.isArray(planRes.value) ? planRes.value : []);
@@ -200,13 +222,16 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-canvas">
+        <Header />
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="w-8 h-8 border-2 border-line border-t-accent rounded-full animate-spin" />
+        </div>
       </div>
     );
   }
 
-  const { wordCount, cardsDue, email, wordsPerDay } = data!;
+  const { wordCount, cardsDue, streak, wordsPerDay } = data!;
   const stage = activeStage(wordCount);
 
   // Прогноз: скільки днів до кожної стадії при поточному темпі
@@ -222,57 +247,44 @@ export default function DashboardPage() {
   }
   const planMap = Object.fromEntries(plan.map((r) => [r.taskKey, r]));
 
+  const QUICK_ACTIONS: {
+    icon: LucideIcon; label: string; sub: string; path: string; accent?: boolean;
+  }[] = [
+    { icon: Plus,      label: 'Додати слово',     sub: 'Відкрити словник',   path: '/vocabulary' },
+    { icon: RotateCcw, label: 'Повторити картки', sub: cardsDue > 0 ? `${cardsDue} карток чекають` : 'Нічого на сьогодні', path: '/cards', accent: cardsDue > 0 },
+    { icon: Library,   label: 'Словник',          sub: 'Всі збережені слова', path: '/vocabulary' },
+    { icon: LineChart, label: 'Статистика',       sub: 'Твій прогрес',        path: '/stats' },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      {/* Header */}
-      <header className="border-b border-slate-800 px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-blue-400 font-bold text-xl">🌐</span>
-            <span className="font-bold text-lg text-white">LinguaFlow</span>
-          </div>
-          <div className="flex items-center gap-4">
-            {email && <span className="text-slate-400 text-sm hidden sm:block">{email}</span>}
-            <button
-              onClick={() => { removeToken(); router.push('/login'); }}
-              className="text-sm px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-colors"
-            >Вийти</button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-canvas text-ink">
+      <Header />
 
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Дашборд</h1>
-          <p className="text-slate-400 text-sm mt-1">Твій прогрес у вивченні англійської</p>
+          <h1 className="text-2xl font-semibold text-ink tracking-tight">Дашборд</h1>
+          <p className="text-dim text-sm mt-1">Твій прогрес у вивченні англійської</p>
         </div>
 
         {/* Stat cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {[
-            { label: 'Збережено слів', value: wordCount,              icon: '📚' },
-            { label: 'На повторення',  value: cardsDue,               icon: '🔄', accent: cardsDue > 0 },
-            { label: 'Поточна стадія', value: `Стадія ${stage}`,      icon: '🎯' },
-          ].map(({ label, value, icon, accent }) => (
-            <div key={label} className={`rounded-xl border p-5 flex flex-col gap-2 ${accent ? 'border-blue-500/40 bg-blue-500/10' : 'border-slate-700 bg-slate-800'}`}>
-              <span className="text-xl">{icon}</span>
-              <p className="text-slate-400 text-sm">{label}</p>
-              <p className="text-3xl font-bold text-white">{value}</p>
-            </div>
-          ))}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard label="Збережено слів" value={wordCount}          icon={BookMarked} />
+          <StatCard label="На повторення"  value={cardsDue}           icon={RefreshCw} accent={cardsDue > 0} />
+          <StatCard label="Streak"         value={`${streak} дн.`}    icon={Flame} />
+          <StatCard label="Поточна стадія" value={`Стадія ${stage}`}  icon={Target} />
         </div>
 
         {/* Темп вивчення */}
-        <div className="rounded-xl border border-slate-700 bg-slate-800 p-5">
+        <div className="rounded-xl border border-line bg-card p-5">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl">🚀</span>
-            <h2 className="font-semibold text-white">При такому темпі:</h2>
+            <Gauge size={18} strokeWidth={1.75} className="text-dim" />
+            <h2 className="font-medium text-ink">При такому темпі:</h2>
           </div>
           {wordsPerDay <= 0 ? (
-            <p className="text-slate-400 text-sm">Додавай слова щодня щоб побачити прогноз</p>
+            <p className="text-dim text-sm">Додавай слова щодня щоб побачити прогноз</p>
           ) : (
             <>
-              <p className="text-slate-400 text-xs mb-3">
+              <p className="text-dim text-xs mb-3">
                 Середньо {wordsPerDay.toFixed(1)} слів/день за останні 7 днів
               </p>
               <div className="space-y-2">
@@ -280,10 +292,12 @@ export default function DashboardPage() {
                   const days = daysToTarget(target);
                   return (
                     <div key={target} className="flex items-center justify-between text-sm">
-                      <span className="text-slate-300">{label} ({target} слів):</span>
-                      <span className="font-medium text-white ml-4 shrink-0">
+                      <span className="text-dim">{label} ({target} слів):</span>
+                      <span className="font-medium text-ink ml-4 shrink-0">
                         {days === 0 ? (
-                          <span className="text-green-400">✓ досягнуто</span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Check size={16} strokeWidth={2} /> досягнуто
+                          </span>
                         ) : (
                           `через ${days} днів`
                         )}
@@ -298,7 +312,7 @@ export default function DashboardPage() {
 
         {/* Plan checklist */}
         <div>
-          <h2 className="text-lg font-semibold text-white mb-4">Прогрес плану</h2>
+          <h2 className="text-lg font-medium text-ink mb-4">Прогрес плану</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {STAGE_META.map(({ num, label, sub }) => {
               const isActive = num === stage;
@@ -308,22 +322,26 @@ export default function DashboardPage() {
                 <div
                   key={num}
                   className={`rounded-xl border p-5 ${
-                    isActive ? 'border-blue-500 bg-blue-500/10'
-                    : isDone ? 'border-slate-600 bg-slate-800/50'
-                    : 'border-slate-700 bg-slate-800/30 opacity-60'
+                    isActive ? 'border-dim bg-card'
+                    : isDone ? 'border-line bg-card'
+                    : 'border-line bg-card/50 opacity-60'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-white">{label}</span>
-                    {isDone && <span className="text-green-400 text-xs">✓ Завершено</span>}
+                    <span className="font-medium text-ink">{label}</span>
+                    {isDone && (
+                      <span className="flex items-center gap-1 text-dim text-xs">
+                        <Check size={14} strokeWidth={2} /> Завершено
+                      </span>
+                    )}
                     {isActive && (
-                      <span className="text-blue-400 text-xs px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/30">
+                      <span className="text-canvas text-xs px-2 py-0.5 rounded-full bg-accent font-medium">
                         Активна
                       </span>
                     )}
                   </div>
-                  <p className="text-blue-300 font-mono text-xs mb-3">{sub}</p>
-                  <div className="divide-y divide-slate-700/50">
+                  <p className="text-dim font-mono text-xs mb-3">{sub}</p>
+                  <div className="divide-y divide-line">
                     {tasks.map((t) => (
                       <TaskRow
                         key={t.key}
@@ -343,27 +361,22 @@ export default function DashboardPage() {
 
         {/* Quick actions */}
         <div>
-          <h2 className="text-lg font-semibold text-white mb-4">Швидкі дії</h2>
+          <h2 className="text-lg font-medium text-ink mb-4">Швидкі дії</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              { icon: '➕', label: 'Додати слово',    sub: 'Відкрити словник',   path: '/vocabulary' },
-              { icon: '🔄', label: 'Повторити картки', sub: cardsDue > 0 ? `${cardsDue} карток чекають` : 'Нічого на сьогодні', path: '/cards', accent: cardsDue > 0 },
-              { icon: '📖', label: 'Словник',          sub: 'Всі збережені слова', path: '/vocabulary' },
-              { icon: '📊', label: 'Статистика',       sub: 'Твій прогрес',       path: '/stats' },
-            ].map(({ icon, label, sub, path, accent }) => (
+            {QUICK_ACTIONS.map(({ icon: Icon, label, sub, path, accent }) => (
               <button
                 key={label}
                 onClick={() => router.push(path)}
                 className={`flex items-center gap-3 px-5 py-4 rounded-xl border transition-colors text-left ${
                   accent
-                    ? 'border-blue-500/50 bg-blue-500/10 hover:bg-blue-500/20'
-                    : 'border-slate-700 bg-slate-800 hover:border-blue-500/50 hover:bg-slate-800/80'
+                    ? 'border-dim bg-active hover:bg-line'
+                    : 'border-line bg-card hover:bg-hover hover:border-dim'
                 }`}
               >
-                <span className="text-2xl">{icon}</span>
+                <Icon size={18} strokeWidth={1.75} className="text-dim shrink-0" />
                 <div>
-                  <p className="font-medium text-white">{label}</p>
-                  <p className="text-slate-400 text-xs">{sub}</p>
+                  <p className="font-medium text-ink">{label}</p>
+                  <p className="text-dim text-xs">{sub}</p>
                 </div>
               </button>
             ))}

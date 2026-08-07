@@ -1,6 +1,10 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  Search, Plus, X, Pencil, Trash2, MessageSquare, Languages, Loader2,
+  ChevronLeft, ChevronRight, BookOpen,
+} from 'lucide-react';
 import Header from '@/components/Header';
 
 const API = '/api';
@@ -21,18 +25,22 @@ interface Pagination {
   pages: number;
 }
 
+// Monochrome ramp — brightness rises with level
 const LEVEL_COLORS: Record<string, string> = {
-  A1: 'bg-green-500/20 text-green-300 border-green-500/30',
-  A2: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  B1: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  B2: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-  C1: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+  A1: 'bg-hover text-dim border-line',
+  A2: 'bg-hover text-[#8f8f8f] border-[#2e2e2e]',
+  B1: 'bg-active text-[#a3a3a3] border-[#333333]',
+  B2: 'bg-active text-[#c4c4c4] border-[#3d3d3d]',
+  C1: 'bg-[#2b2b2b] text-ink border-[#4a4a4a]',
 };
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
 
 const INPUT_CLS =
-  'w-full px-2 py-1 rounded bg-slate-900 border border-slate-600 text-white focus:outline-none focus:border-blue-500 text-sm';
+  'w-full px-2 py-1 rounded bg-canvas border border-line text-ink focus:outline-none focus:border-dim text-sm transition-colors';
+
+const FIELD_CLS =
+  'px-3 py-2 rounded-lg bg-canvas border border-line text-ink placeholder-dim/60 focus:outline-none focus:border-dim text-sm transition-colors';
 
 function authHeaders() {
   const token = localStorage.getItem('auth_token');
@@ -211,68 +219,70 @@ export default function VocabularyPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
+    <div className="min-h-screen bg-canvas text-ink">
       <Header />
 
       <main className="max-w-6xl mx-auto px-6 py-6 space-y-5">
         {/* Page title + add button */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="font-bold text-white text-xl">Словник</h1>
+            <h1 className="font-semibold text-ink text-xl tracking-tight">Словник</h1>
             {pagination.total > 0 && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-400">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-active text-dim tabular-nums">
                 {pagination.total}
               </span>
             )}
           </div>
           <button
             onClick={() => { setShowForm((v) => !v); setFormError(''); }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-ink text-canvas text-sm font-medium transition-colors"
           >
-            {showForm ? '✕ Закрити' : '+ Додати слово'}
+            {showForm
+              ? <><X size={16} strokeWidth={2} /> Закрити</>
+              : <><Plus size={16} strokeWidth={2} /> Додати слово</>}
           </button>
         </div>
 
         {/* Add form */}
         {showForm && (
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-5">
-            <h2 className="font-semibold text-white mb-4">Нове слово</h2>
+          <div className="bg-card border border-line rounded-xl p-5">
+            <h2 className="font-medium text-ink mb-4">Нове слово</h2>
             <form onSubmit={handleAdd} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-slate-400">Слово *</label>
+                <label className="text-xs text-dim">Слово *</label>
                 <input
                   value={form.word}
                   onChange={(e) => setForm((f) => ({ ...f, word: e.target.value }))}
                   required
                   placeholder="e.g. resilience"
-                  className="px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 text-sm"
+                  className={FIELD_CLS}
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-slate-400">Переклад</label>
+                <label className="text-xs text-dim">Переклад</label>
                 <input
                   value={form.translation}
                   onChange={(e) => setForm((f) => ({ ...f, translation: e.target.value }))}
                   placeholder="e.g. стійкість"
-                  className="px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 text-sm"
+                  className={FIELD_CLS}
                 />
               </div>
               <div className="flex flex-col gap-1 lg:col-span-2">
-                <label className="text-xs text-slate-400">Контекст</label>
+                <label className="text-xs text-dim">Контекст</label>
                 <input
                   value={form.contextSentence}
                   onChange={(e) => setForm((f) => ({ ...f, contextSentence: e.target.value }))}
                   placeholder="e.g. She showed great resilience..."
-                  className="px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 text-sm"
+                  className={FIELD_CLS}
                 />
               </div>
               <div className="flex gap-2 items-end">
                 <div className="flex flex-col gap-1 flex-1">
-                  <label className="text-xs text-slate-400">Рівень</label>
+                  <label className="text-xs text-dim">Рівень</label>
                   <select
                     value={form.level}
                     onChange={(e) => setForm((f) => ({ ...f, level: e.target.value }))}
-                    className="px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white focus:outline-none focus:border-blue-500 text-sm"
+                    className={FIELD_CLS}
                   >
                     <option value="">—</option>
                     {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
@@ -281,9 +291,11 @@ export default function VocabularyPage() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50 transition-colors whitespace-nowrap"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-ink text-canvas text-sm font-medium disabled:opacity-50 transition-colors whitespace-nowrap"
                 >
-                  {formLoading ? '...' : 'Додати'}
+                  {formLoading
+                    ? <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+                    : 'Додати'}
                 </button>
               </div>
               {formError && (
@@ -296,16 +308,16 @@ export default function VocabularyPage() {
         {/* Search + filters */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[180px] max-w-sm">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
+            <Search size={16} strokeWidth={1.75} className="absolute left-3 top-1/2 -translate-y-1/2 text-dim pointer-events-none" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Пошук по слову або перекладу..."
-              className="w-full pl-9 pr-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+              className="w-full pl-9 pr-3 py-2 rounded-lg bg-card border border-line text-ink placeholder-dim focus:outline-none focus:border-dim text-sm transition-colors"
             />
           </div>
           {search && (
-            <button onClick={() => setSearch('')} className="text-slate-500 hover:text-white text-sm transition-colors">
+            <button onClick={() => setSearch('')} className="text-dim hover:text-ink text-sm transition-colors">
               Очистити
             </button>
           )}
@@ -318,8 +330,8 @@ export default function VocabularyPage() {
                 onClick={() => setLevelFilter(lvl)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
                   levelFilter === lvl
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
+                    ? 'bg-accent text-canvas'
+                    : 'bg-card border border-line text-dim hover:text-ink hover:bg-hover'
                 }`}
               >
                 {lvl || 'All'}
@@ -331,7 +343,7 @@ export default function VocabularyPage() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-sm focus:outline-none focus:border-blue-500"
+            className="px-3 py-1.5 rounded-lg bg-card border border-line text-dim text-sm focus:outline-none focus:border-dim transition-colors"
           >
             <option value="newest">Нові спочатку</option>
             <option value="oldest">Старі спочатку</option>
@@ -342,36 +354,36 @@ export default function VocabularyPage() {
         {/* Table */}
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-line border-t-accent rounded-full animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-24 space-y-2">
-            <p className="text-4xl">📚</p>
-            <p className="text-slate-400 text-lg font-medium">
+          <div className="flex flex-col items-center text-center py-24 gap-3">
+            <BookOpen size={32} strokeWidth={1.25} className="text-dim" />
+            <p className="text-dim text-lg font-medium">
               {search ? `Нічого не знайдено за "${search}"` : 'Словник порожній'}
             </p>
-            <p className="text-slate-600 text-sm">
-              {!search && 'Додайте перше слово за допомогою кнопки вище'}
-            </p>
+            {!search && (
+              <p className="text-dim/70 text-sm">Додайте перше слово за допомогою кнопки вище</p>
+            )}
           </div>
         ) : (
-          <div className="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden">
-            <div className="overflow-x-auto">
+          <div className="bg-card border border-line rounded-xl overflow-hidden">
+            <div className="overflow-x-auto scrollbar-thin">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-700 bg-slate-800/80">
-                    <th className="text-left px-4 py-3 text-slate-400 font-medium">Слово</th>
-                    <th className="text-left px-4 py-3 text-slate-400 font-medium">Переклад</th>
-                    <th className="text-left px-4 py-3 text-slate-400 font-medium hidden md:table-cell">Контекст</th>
-                    <th className="text-left px-4 py-3 text-slate-400 font-medium w-20">Рівень</th>
-                    <th className="text-left px-4 py-3 text-slate-400 font-medium hidden lg:table-cell w-28">Додано</th>
+                  <tr className="border-b border-line bg-panel">
+                    <th className="text-left px-4 py-3 text-dim font-medium">Слово</th>
+                    <th className="text-left px-4 py-3 text-dim font-medium">Переклад</th>
+                    <th className="text-left px-4 py-3 text-dim font-medium hidden md:table-cell">Контекст</th>
+                    <th className="text-left px-4 py-3 text-dim font-medium w-20">Рівень</th>
+                    <th className="text-left px-4 py-3 text-dim font-medium hidden lg:table-cell w-28">Додано</th>
                     <th className="px-4 py-3 w-20" />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-700/50">
+                <tbody className="divide-y divide-line">
                   {filtered.map((w) =>
                     editingId === w.id ? (
-                      <tr key={w.id} className="bg-slate-700/40">
+                      <tr key={w.id} className="bg-hover">
                         <td className="px-4 py-2">
                           <input
                             value={editForm.word}
@@ -413,13 +425,13 @@ export default function VocabularyPage() {
                               <button
                                 onClick={() => handleSave(w.id)}
                                 disabled={saving}
-                                className="px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium disabled:opacity-50 transition-colors whitespace-nowrap"
+                                className="px-2 py-1 rounded bg-accent hover:bg-ink text-canvas text-xs font-medium disabled:opacity-50 transition-colors whitespace-nowrap"
                               >
                                 {saving ? '...' : 'Зберегти'}
                               </button>
                               <button
                                 onClick={cancelEdit}
-                                className="px-2 py-1 rounded bg-slate-600 hover:bg-slate-500 text-slate-200 text-xs transition-colors"
+                                className="px-2 py-1 rounded border border-line text-dim hover:text-ink hover:bg-hover text-xs transition-colors"
                               >
                                 Скасувати
                               </button>
@@ -431,41 +443,45 @@ export default function VocabularyPage() {
                         </td>
                       </tr>
                     ) : (
-                      <tr key={w.id} className="hover:bg-slate-700/30 transition-colors group">
-                        <td className="px-4 py-3 font-semibold text-white">{w.word}</td>
-                        <td className="px-4 py-3 text-slate-300">
-                          {w.translation ?? <span className="text-slate-600">—</span>}
+                      <tr key={w.id} className="hover:bg-hover transition-colors group">
+                        <td className="px-4 py-3 font-medium text-ink">{w.word}</td>
+                        <td className="px-4 py-3 text-dim">
+                          {w.translation ?? <span className="text-dim/60">—</span>}
                         </td>
-                        <td className="px-4 py-3 text-slate-400 hidden md:table-cell max-w-xs">
+                        <td className="px-4 py-3 text-dim hidden md:table-cell max-w-xs">
                           {w.contextSentence ? (
                             <div>
                               <button
                                 onClick={() => setExpandedCtxId((id) => id === w.id ? null : w.id)}
-                                className="flex items-center gap-1.5 text-left hover:text-slate-200 transition-colors w-full"
+                                className="flex items-center gap-1.5 text-left text-dim hover:text-ink transition-colors w-full"
                               >
-                                <span className="text-slate-500 flex-shrink-0">💬</span>
-                                <span className="truncate text-xs text-slate-400 max-w-[180px]">
+                                <MessageSquare size={16} strokeWidth={1.75} className="shrink-0" />
+                                <span className="truncate text-xs max-w-[180px]">
                                   {w.contextSentence}
                                 </span>
                               </button>
                               {expandedCtxId === w.id && (
                                 <div className="mt-2 space-y-1.5 pl-1">
-                                  <p className="text-slate-300 text-xs italic leading-relaxed">{w.contextSentence}</p>
+                                  <p className="text-ink text-xs italic leading-relaxed">{w.contextSentence}</p>
                                   {translations[w.id]?.sentenceTranslation ? (
-                                    <p className="text-blue-300 text-xs leading-relaxed">
+                                    <p className="text-dim text-xs leading-relaxed">
                                       {translations[w.id].sentenceTranslation}
                                     </p>
                                   ) : (
                                     <button
                                       onClick={() => handleTranslateSentence(w)}
                                       disabled={translating === w.id}
-                                      className="text-xs text-slate-500 hover:text-blue-400 border border-slate-600 hover:border-blue-500 px-2 py-0.5 rounded transition-colors disabled:opacity-40"
+                                      className="inline-flex items-center gap-1.5 text-xs text-dim hover:text-ink border border-line hover:border-dim px-2 py-0.5 rounded transition-colors disabled:opacity-40"
                                     >
-                                      {translating === w.id ? '⏳ Перекладаю…' : '🔍 Перекласти речення'}
+                                      {translating === w.id ? (
+                                        <><Loader2 size={16} strokeWidth={1.75} className="animate-spin" /> Перекладаю…</>
+                                      ) : (
+                                        <><Languages size={16} strokeWidth={1.75} /> Перекласти речення</>
+                                      )}
                                     </button>
                                   )}
                                   {translations[w.id]?.wordTranslation && !w.translation && (
-                                    <p className="text-emerald-400 text-xs">
+                                    <p className="text-ink text-xs">
                                       {w.word} = {translations[w.id].wordTranslation}
                                     </p>
                                   )}
@@ -473,23 +489,23 @@ export default function VocabularyPage() {
                               )}
                             </div>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-dim/60">—</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
                           {w.level ? (
                             <span
                               className={`px-2 py-0.5 rounded-full text-xs border font-medium ${
-                                LEVEL_COLORS[w.level] ?? 'bg-slate-700 text-slate-300 border-slate-600'
+                                LEVEL_COLORS[w.level] ?? 'bg-active text-dim border-line'
                               }`}
                             >
                               {w.level}
                             </span>
                           ) : (
-                            <span className="text-slate-600">—</span>
+                            <span className="text-dim/60">—</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-slate-500 hidden lg:table-cell text-xs whitespace-nowrap">
+                        <td className="px-4 py-3 text-dim hidden lg:table-cell text-xs whitespace-nowrap tabular-nums">
                           {new Date(w.createdAt).toLocaleDateString('uk-UA', {
                             day: '2-digit',
                             month: '2-digit',
@@ -497,27 +513,24 @@ export default function VocabularyPage() {
                           })}
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-all">
+                          <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all">
                             <button
                               onClick={() => startEdit(w)}
                               title="Редагувати"
-                              className="text-slate-500 hover:text-blue-400 p-1 rounded transition-colors"
+                              className="text-dim hover:text-ink p-1 rounded hover:bg-active transition-colors"
                             >
-                              ✏️
+                              <Pencil size={16} strokeWidth={1.75} />
                             </button>
                             <button
                               onClick={() => handleDelete(w.id, w.word)}
                               disabled={deleting === w.id}
                               title="Видалити"
-                              className="text-slate-500 hover:text-red-400 transition-colors disabled:opacity-50 p-1 rounded"
+                              className="text-dim hover:text-red-400 p-1 rounded hover:bg-active transition-colors disabled:opacity-50"
                             >
                               {deleting === w.id ? (
-                                <span className="text-xs">...</span>
+                                <Loader2 size={16} strokeWidth={1.75} className="animate-spin" />
                               ) : (
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
+                                <Trash2 size={16} strokeWidth={1.75} />
                               )}
                             </button>
                           </div>
@@ -537,25 +550,25 @@ export default function VocabularyPage() {
             <button
               onClick={() => fetchWords(pagination.page - 1)}
               disabled={pagination.page <= 1}
-              className="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-line text-dim hover:text-ink hover:bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
             >
-              ← Назад
+              <ChevronLeft size={16} strokeWidth={1.75} /> Назад
             </button>
 
             <div className="flex gap-1">
               {buildPageList(pagination.page, pagination.pages).map((p, i) =>
                 p === '...' ? (
-                  <span key={`gap-${i}`} className="px-2 py-1.5 text-slate-600 text-sm select-none">
+                  <span key={`gap-${i}`} className="px-2 py-1.5 text-dim text-sm select-none">
                     …
                   </span>
                 ) : (
                   <button
                     key={p}
                     onClick={() => fetchWords(p as number)}
-                    className={`w-8 h-8 rounded-lg text-sm transition-colors ${
+                    className={`w-8 h-8 rounded-lg text-sm transition-colors tabular-nums ${
                       p === pagination.page
-                        ? 'bg-blue-600 text-white font-medium'
-                        : 'border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
+                        ? 'bg-accent text-canvas font-medium'
+                        : 'border border-line text-dim hover:text-ink hover:bg-hover'
                     }`}
                   >
                     {p}
@@ -567,9 +580,9 @@ export default function VocabularyPage() {
             <button
               onClick={() => fetchWords(pagination.page + 1)}
               disabled={pagination.page >= pagination.pages}
-              className="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-line text-dim hover:text-ink hover:bg-hover disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm"
             >
-              Далі →
+              Далі <ChevronRight size={16} strokeWidth={1.75} />
             </button>
           </div>
         )}

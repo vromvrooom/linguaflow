@@ -31,31 +31,31 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-canvas">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-white">LinguaFlow</h1>
-          <p className="text-slate-400 mt-1 text-sm">Створіть новий акаунт</p>
+          <h1 className="text-3xl font-semibold text-ink tracking-tight">LinguaFlow</h1>
+          <p className="text-dim mt-1 text-sm">Створіть новий акаунт</p>
         </div>
-        <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 space-y-4">
+        <div className="bg-card border border-line rounded-xl p-6 space-y-4">
           <div>
-            <label className="block text-sm text-slate-400 mb-1.5">Email</label>
+            <label className="block text-sm text-dim mb-1.5">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full px-3 py-2.5 rounded-lg bg-canvas border border-line text-ink placeholder-dim/70 focus:outline-none focus:border-dim transition-colors"
               placeholder="you@example.com"
               required
             />
           </div>
           <div>
-            <label className="block text-sm text-slate-400 mb-1.5">Пароль</label>
+            <label className="block text-sm text-dim mb-1.5">Пароль</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg bg-slate-900 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition-colors"
+              className="w-full px-3 py-2.5 rounded-lg bg-canvas border border-line text-ink placeholder-dim/70 focus:outline-none focus:border-dim transition-colors"
               placeholder="мін. 6 символів"
               required
               minLength={6}
@@ -66,14 +66,14 @@ export default function RegisterPage() {
             type="button"
             onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
             disabled={loading}
-            className="w-full py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-500 disabled:opacity-50 transition-colors"
+            className="w-full py-2.5 rounded-lg bg-accent text-canvas font-medium hover:bg-ink disabled:opacity-50 transition-colors"
           >
             {loading ? 'Створюємо...' : 'Створити акаунт'}
           </button>
         </div>
-        <p className="text-center text-sm text-slate-500">
+        <p className="text-center text-sm text-dim">
           Вже є акаунт?{' '}
-          <a href="/login" className="text-blue-400 hover:text-blue-300">Увійти</a>
+          <a href="/login" className="text-ink hover:text-dim underline underline-offset-4 transition-colors">Увійти</a>
         </p>
       </div>
     </div>

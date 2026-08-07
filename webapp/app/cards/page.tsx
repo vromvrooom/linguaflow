@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { CheckCircle2, ArrowLeft, Plus, Loader2 } from 'lucide-react';
 import Header from '@/components/Header';
 
 const API = '/api';
@@ -17,12 +18,13 @@ interface SrsCard {
   };
 }
 
+// Monochrome ramp — brightness rises with recall quality
 const RATINGS = [
-  { quality: 0, label: 'Не знав',   color: 'bg-red-600    hover:bg-red-500',    key: '1' },
-  { quality: 2, label: 'Важко',     color: 'bg-orange-600 hover:bg-orange-500',  key: '2' },
-  { quality: 3, label: 'Нормально', color: 'bg-yellow-600 hover:bg-yellow-500',  key: '3' },
-  { quality: 4, label: 'Добре',     color: 'bg-green-600  hover:bg-green-500',   key: '4' },
-  { quality: 5, label: 'Ідеально',  color: 'bg-blue-600   hover:bg-blue-500',    key: '5' },
+  { quality: 0, label: 'Не знав',   color: 'bg-hover text-dim hover:bg-active hover:text-ink border border-line', key: '1' },
+  { quality: 2, label: 'Важко',     color: 'bg-active text-[#a3a3a3] hover:text-ink border border-line',          key: '2' },
+  { quality: 3, label: 'Нормально', color: 'bg-[#333333] text-[#c4c4c4] hover:text-ink border border-[#3d3d3d]',  key: '3' },
+  { quality: 4, label: 'Добре',     color: 'bg-[#a3a3a3] text-canvas hover:bg-[#c4c4c4]',                         key: '4' },
+  { quality: 5, label: 'Ідеально',  color: 'bg-accent text-canvas hover:bg-ink',                                  key: '5' },
 ] as const;
 
 function authHeaders() {
@@ -116,9 +118,9 @@ export default function CardsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900"><Header />
+      <div className="min-h-screen bg-canvas"><Header />
         <div className="flex items-center justify-center h-[60vh]">
-          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-line border-t-accent rounded-full animate-spin" />
         </div>
       </div>
     );
@@ -126,14 +128,14 @@ export default function CardsPage() {
 
   if (done) {
     return (
-      <div className="min-h-screen bg-slate-900"><Header />
+      <div className="min-h-screen bg-canvas"><Header />
         <div className="flex flex-col items-center justify-center h-[65vh] gap-4 text-center px-4">
-          <span className="text-6xl">🎉</span>
-          <h2 className="text-2xl font-bold text-white">Все повторено на сьогодні!</h2>
-          <p className="text-slate-400">{reviewed > 0 ? `Переглянуто ${reviewed} карток` : 'Карток на повторення немає'}</p>
+          <CheckCircle2 size={48} strokeWidth={1.25} className="text-dim" />
+          <h2 className="text-2xl font-semibold text-ink tracking-tight">Все повторено на сьогодні!</h2>
+          <p className="text-dim">{reviewed > 0 ? `Переглянуто ${reviewed} карток` : 'Карток на повторення немає'}</p>
           <button onClick={() => router.push('/dashboard')}
-            className="mt-2 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors">
-            ← Дашборд
+            className="mt-2 flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-ink text-canvas font-medium transition-colors">
+            <ArrowLeft size={16} strokeWidth={2} /> Дашборд
           </button>
         </div>
       </div>
@@ -141,18 +143,18 @@ export default function CardsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
+    <div className="min-h-screen bg-canvas text-ink">
       <Header />
       <main className="max-w-xl mx-auto px-4 py-8 space-y-6">
 
         {/* Progress */}
         <div className="space-y-2">
-          <div className="flex justify-between text-sm text-slate-400">
+          <div className="flex justify-between text-sm text-dim">
             <span>Переглянуто {reviewed} з {total}</span>
-            <span>{progress}%</span>
+            <span className="tabular-nums">{progress}%</span>
           </div>
-          <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full bg-blue-600 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+          <div className="h-1.5 bg-line rounded-full overflow-hidden">
+            <div className="h-full bg-accent rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
           </div>
         </div>
 
@@ -170,30 +172,30 @@ export default function CardsPage() {
             {/* Front */}
             <div
               style={{ backfaceVisibility: 'hidden' }}
-              className="absolute inset-0 bg-slate-800 border border-slate-700 rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-center"
+              className="absolute inset-0 bg-card border border-line rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-center"
             >
-              <p className="text-xs text-slate-500 uppercase tracking-wider">Слово</p>
-              <h2 className="text-4xl font-bold text-white">{card.word.word}</h2>
+              <p className="text-xs text-dim uppercase tracking-wider">Слово</p>
+              <h2 className="text-4xl font-semibold text-ink tracking-tight">{card.word.word}</h2>
               {card.word.contextSentence && (
-                <p className="text-slate-500 text-sm italic">"{card.word.contextSentence}"</p>
+                <p className="text-dim text-sm italic">&laquo;{card.word.contextSentence}&raquo;</p>
               )}
               <button
                 onClick={() => setFlipped(true)}
-                className="mt-2 px-5 py-2.5 rounded-lg border border-slate-600 text-slate-300 hover:border-blue-500 hover:text-blue-400 transition-colors text-sm"
+                className="mt-2 px-5 py-2.5 rounded-lg border border-line text-dim hover:text-ink hover:bg-hover hover:border-dim transition-colors text-sm"
               >
-                Показати переклад <span className="text-slate-600 ml-1">пробіл</span>
+                Показати переклад <span className="text-dim/70 ml-1">пробіл</span>
               </button>
             </div>
 
             {/* Back */}
             <div
               style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-              className="absolute inset-0 bg-slate-800 border border-blue-500/40 rounded-2xl p-8 flex flex-col items-center justify-center gap-3 text-center"
+              className="absolute inset-0 bg-card border border-dim rounded-2xl p-8 flex flex-col items-center justify-center gap-3 text-center"
             >
-              <p className="text-xs text-slate-500 uppercase tracking-wider">{card.word.word}</p>
+              <p className="text-xs text-dim uppercase tracking-wider">{card.word.word}</p>
 
               {card.word.translation ? (
-                <p className="text-3xl text-blue-300 font-semibold">{card.word.translation}</p>
+                <p className="text-3xl text-ink font-semibold tracking-tight">{card.word.translation}</p>
               ) : addingTranslation ? (
                 <div className="flex flex-col items-center gap-2 w-full max-w-xs">
                   <input
@@ -202,33 +204,35 @@ export default function CardsPage() {
                     onChange={(e) => setTranslationInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleSaveTranslation(); }}
                     placeholder="Введіть переклад..."
-                    className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-center focus:outline-none focus:border-blue-500 text-sm"
+                    className="w-full px-3 py-2 rounded-lg bg-canvas border border-line text-ink text-center placeholder-dim focus:outline-none focus:border-dim text-sm transition-colors"
                   />
                   <div className="flex gap-2">
                     <button onClick={handleSaveTranslation} disabled={savingTranslation}
-                      className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm disabled:opacity-50">
-                      {savingTranslation ? '...' : 'Зберегти'}
+                      className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-accent hover:bg-ink text-canvas text-sm font-medium disabled:opacity-50 transition-colors">
+                      {savingTranslation
+                        ? <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+                        : 'Зберегти'}
                     </button>
                     <button onClick={() => setAddingTranslation(false)}
-                      className="px-4 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm">
+                      className="px-4 py-1.5 rounded-lg border border-line text-dim hover:text-ink hover:bg-hover text-sm transition-colors">
                       Скасувати
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2">
-                  <p className="text-slate-500 italic text-sm">Переклад не додано</p>
+                  <p className="text-dim italic text-sm">Переклад не додано</p>
                   <button
                     onClick={() => setAddingTranslation(true)}
-                    className="text-blue-400 hover:text-blue-300 text-sm underline underline-offset-2"
+                    className="flex items-center gap-1.5 text-ink hover:text-dim text-sm transition-colors"
                   >
-                    Додати переклад
+                    <Plus size={16} strokeWidth={2} /> Додати переклад
                   </button>
                 </div>
               )}
 
               {card.word.contextSentence && (
-                <p className="text-slate-500 text-sm italic">"{card.word.contextSentence}"</p>
+                <p className="text-dim text-sm italic">&laquo;{card.word.contextSentence}&raquo;</p>
               )}
             </div>
           </div>
@@ -237,8 +241,8 @@ export default function CardsPage() {
         {/* Rating */}
         {flipped && (
           <div className="space-y-2">
-            <p className="text-center text-sm text-slate-500">
-              Як добре ти знав це слово? <span className="text-slate-600">(клавіші 1–5)</span>
+            <p className="text-center text-sm text-dim">
+              Як добре ти знав це слово? <span className="text-dim/70">(клавіші 1–5)</span>
             </p>
             <div className="grid grid-cols-5 gap-2">
               {RATINGS.map(({ quality, label, color, key }) => (
@@ -247,7 +251,7 @@ export default function CardsPage() {
                   onClick={() => handleRate(quality)}
                   disabled={submitting}
                   title={`${label} [${key}]`}
-                  className={`py-3 rounded-xl text-white text-sm font-medium transition-colors disabled:opacity-50 ${color}`}
+                  className={`py-3 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 ${color}`}
                 >
                   {label}
                 </button>
@@ -256,7 +260,7 @@ export default function CardsPage() {
           </div>
         )}
 
-        <p className="text-center text-xs text-slate-600">
+        <p className="text-center text-xs text-dim">
           Картка {current + 1} з {total} · інтервал {card.intervalDays} дн. · повторень {card.repetitions}
         </p>
       </main>

@@ -4,38 +4,62 @@
 
 @layer base {
   :root {
-    /* Neutral dark palette — mirrors tailwind.config.ts */
-    --background: 0 0% 6%;      /* #0f0f0f */
-    --foreground: 0 0% 98%;     /* #fafafa */
-    --primary: 0 0% 90%;        /* #e5e5e5 */
-    --primary-foreground: 0 0% 6%;
-    --muted: 0 0% 10%;          /* #1a1a1a */
-    --muted-foreground: 0 0% 45%; /* #737373 */
-    --border: 0 0% 15%;         /* #262626 */
-    --radius: 0.5rem;
+    /* Warm light palette — mirrors tailwind.config.ts */
+    --background: 45 20% 97%;     /* #f8f7f4 */
+    --foreground: 0 0% 10%;       /* #1a1a1a */
+    --primary: 152 40% 30%;       /* #2d6a4f */
+    --primary-foreground: 0 0% 100%;
+    --muted: 0 0% 100%;
+    --muted-foreground: 30 6% 53%; /* #8b8580 */
+    --border: 39 26% 89%;         /* #e8e4dc */
+    --radius: 0.75rem;
   }
 }
 
 @layer base {
   * { @apply border-border; }
-  body { @apply bg-canvas text-ink; }
 
-  /* Native controls follow the dark palette */
-  select option {
-    background-color: #1a1a1a;
-    color: #fafafa;
+  body {
+    @apply bg-paper text-ink;
+    -webkit-font-smoothing: antialiased;
   }
 
   ::selection {
-    background-color: #e5e5e5;
-    color: #0f0f0f;
+    background-color: #d7f0e2;
+    color: #1b4332;
+  }
+}
+
+@layer components {
+  /* Cards rise slightly on hover — the whole app shares one motion language */
+  .lift {
+    @apply transition-all duration-200 ease-out;
+  }
+  .lift:hover {
+    @apply -translate-y-0.5 shadow-card-hover;
+  }
+
+  /* Buttons settle inward on click */
+  .press {
+    @apply transition-all duration-200 ease-out;
+  }
+  .press:active {
+    transform: scale(0.98);
   }
 }
 
 @layer utilities {
-  /* Neutral scrollbars so panels don't punch a bright hole in the page */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: #262626 transparent;
+    scrollbar-color: #e8e4dc transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lift, .press {
+    transition: none;
+  }
+  .lift:hover, .press:active {
+    transform: none;
   }
 }

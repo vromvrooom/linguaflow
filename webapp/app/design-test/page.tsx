@@ -1,219 +1,182 @@
 'use client';
 
-// LinguaFlow — design concept #2: "Detroit: Become Human" android system UI.
-// Cold cyan accents, scanlines, terminal typography. Static mock, no API.
+// LinguaFlow — design concept #3: Vercel / Linear minimal premium SaaS.
+// Monochrome, 1px borders, no shadows/glows/gradients. Static mock, no API.
 
-import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+
+/* Minimal monochrome stroke icons (inherit currentColor). */
+const ICON: Record<string, ReactNode> = {
+  dashboard: (
+    <>
+      <rect x="2.5" y="2.5" width="5" height="5" rx="1" />
+      <rect x="9.5" y="2.5" width="5" height="5" rx="1" />
+      <rect x="2.5" y="9.5" width="5" height="5" rx="1" />
+      <rect x="9.5" y="9.5" width="5" height="5" rx="1" />
+    </>
+  ),
+  lexicon: (
+    <>
+      <path d="M3 3h8a2 2 0 0 1 2 2v9H5a2 2 0 0 1-2-2V3Z" />
+      <path d="M3 12.5h10" />
+    </>
+  ),
+  review: (
+    <>
+      <path d="M13.5 5.5A5.5 5.5 0 1 0 14 9" />
+      <path d="M13.5 2.5v3h-3" />
+    </>
+  ),
+  analytics: (
+    <>
+      <path d="M2.5 13.5V8" />
+      <path d="M6.5 13.5V4" />
+      <path d="M10.5 13.5V9" />
+      <path d="M14 13.5h-12" />
+    </>
+  ),
+  progress: (
+    <>
+      <path d="M2.5 11l4-4 3 3 5-6" />
+    </>
+  ),
+};
 
 const NAV = [
-  { code: '01', label: 'DASHBOARD', active: true },
-  { code: '02', label: 'LEXICON', active: false },
-  { code: '03', label: 'REVIEW', active: false },
-  { code: '04', label: 'ANALYTICS', active: false },
-  { code: '05', label: 'PROGRESS', active: false },
+  { id: 'dashboard', label: 'Dashboard', active: true },
+  { id: 'lexicon', label: 'Lexicon', active: false },
+  { id: 'review', label: 'Review', active: false },
+  { id: 'analytics', label: 'Analytics', active: false },
+  { id: 'progress', label: 'Progress', active: false },
 ];
 
 const STATS = [
-  { code: 'STR-001', name: 'STREAK', value: 12, unit: 'DAYS', pct: 40 },
-  { code: 'LEX-002', name: 'VOCABULARY', value: 348, unit: 'WORDS', pct: 70 },
-  { code: 'TMP-003', name: 'EN MINUTES', value: 92, unit: 'TODAY', pct: 77 },
-  { code: 'SRC-004', name: 'EN SEARCHES', value: 27, unit: 'TODAY', pct: 68 },
+  { name: 'Streak', value: '12', trend: '+2 від вчора' },
+  { name: 'Vocabulary', value: '348', trend: '+15 від вчора' },
+  { name: 'English minutes', value: '92', trend: '+8 від вчора' },
+  { name: 'English searches', value: '27', trend: '+4 від вчора' },
 ];
 
-const PROTOCOLS = [
-  { n: '01', title: 'FOUNDATION', sub: 'A1 — A2', pct: 100, state: 'done' as const },
-  { n: '02', title: 'EXPANSION', sub: 'B1 — B2', pct: 64, state: 'active' as const },
-  { n: '03', title: 'FLUENCY', sub: 'C1 — C2', pct: 0, state: 'standby' as const },
+const STAGES = [
+  { title: 'Stage 1', sub: 'Foundation', pct: 100, active: false },
+  { title: 'Stage 2', sub: 'Expansion', pct: 64, active: true },
+  { title: 'Stage 3', sub: 'Fluency', pct: 0, active: false },
 ];
 
-const ACTIVITY = [
-  { ts: '14:23:07', word: 'serendipity', tr: 'щаслива випадковість' },
-  { ts: '11:58:42', word: 'ubiquitous', tr: 'всюдисущий' },
-  { ts: '09:31:15', word: 'ephemeral', tr: 'ефемерний' },
-  { ts: '08:47:03', word: 'resilience', tr: 'стійкість' },
-  { ts: '07:12:59', word: 'paradigm', tr: 'парадигма' },
+const WORDS = [
+  { word: 'serendipity', tr: 'щаслива випадковість', time: '2h ago' },
+  { word: 'ubiquitous', tr: 'всюдисущий', time: '5h ago' },
+  { word: 'ephemeral', tr: 'ефемерний', time: 'Yesterday' },
+  { word: 'resilience', tr: 'стійкість', time: 'Yesterday' },
+  { word: 'paradigm', tr: 'парадигма', time: '2d ago' },
 ];
 
-const ACTIONS = ['ADD_WORD', 'REVIEW', 'LEXICON', 'ANALYTICS'];
-
-/** Counts up from 0 to `target` with an ease-out curve on mount. */
-function Counter({ target, duration = 1400 }: { target: number; duration?: number }) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    let raf = 0;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setVal(Math.round(target * eased));
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, duration]);
-  return <>{val}</>;
-}
-
-/** Reveals `text` one character at a time. */
-function useTyping(text: string, speed = 85) {
-  const [out, setOut] = useState('');
-  useEffect(() => {
-    let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setOut(text.slice(0, i));
-      if (i >= text.length) clearInterval(id);
-    }, speed);
-    return () => clearInterval(id);
-  }, [text, speed]);
-  return out;
-}
+const ACTIONS = ['Add word', 'Start review', 'Open lexicon', 'View analytics'];
 
 export default function DesignTestPage() {
-  const typed = useTyping('SYSTEM OVERVIEW');
-
   return (
-    <div className="dt-root">
+    <div className="v-root">
       <style>{CSS}</style>
 
-      {/* effects layers */}
-      <div className="dt-scanlines" aria-hidden />
-      <div className="dt-loadbar" aria-hidden />
-
       {/* ── Sidebar ───────────────────────────────── */}
-      <aside className="dt-sidebar">
-        <div className="dt-logo">
-          <span className="dt-logo-glyph">[◈]</span>
-          <span className="dt-logo-text">LINGUAFLOW</span>
-        </div>
-        <div className="dt-online">
-          <span className="dt-pulse" />
-          ONLINE
+      <aside className="v-sidebar">
+        <div className="v-logo">
+          <span className="v-logo-dot" />
+          <span className="v-logo-text">LinguaFlow</span>
         </div>
 
-        <nav className="dt-nav">
+        <nav className="v-nav">
           {NAV.map((item) => (
             <a
-              key={item.code}
-              className={`dt-nav-item${item.active ? ' is-active' : ''}`}
+              key={item.id}
+              className={`v-nav-item${item.active ? ' is-active' : ''}`}
               href="#"
               onClick={(e) => e.preventDefault()}
             >
-              <span className="dt-nav-code">{item.code}</span>
-              <span className="dt-nav-slash">/</span>
-              <span className="dt-nav-label">{item.label}</span>
+              <svg
+                className="v-nav-icon"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.25"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {ICON[item.id]}
+              </svg>
+              <span>{item.label}</span>
             </a>
           ))}
         </nav>
 
-        <div className="dt-id">
-          <div className="dt-id-row">
-            <span className="dt-id-label">ANDROID</span>
-            <span className="dt-id-val">#VA-56</span>
-          </div>
-          <div className="dt-id-row">
-            <span className="dt-id-label">BUILD</span>
-            <span className="dt-id-val">v2.1.0</span>
-          </div>
+        <div className="v-user">
+          <span className="v-avatar">VR</span>
+          <span className="v-user-email">romanecvadym@gmail.com</span>
         </div>
       </aside>
 
       {/* ── Main ──────────────────────────────────── */}
-      <main className="dt-main">
-        <header className="dt-head">
-          <h1 className="dt-h1">
-            {typed}
-            <span className="dt-caret" />
-          </h1>
-          <span className="dt-clock">[ 11.06.2026 // 16:40:07 ]</span>
+      <main className="v-main">
+        <header className="v-head">
+          <h1 className="v-h1">Good evening, Vadym</h1>
+          <p className="v-sub">Here&apos;s your progress</p>
         </header>
 
-        <div className="dt-rule" />
-
         {/* Stat cards */}
-        <section className="dt-stats">
+        <section className="v-stats">
           {STATS.map((s) => (
-            <div className="dt-card dt-stat" key={s.code}>
-              <div className="dt-stat-head">
-                <span className="dt-stat-code">{s.code}</span>
-                <span className="dt-stat-name">{s.name}</span>
-              </div>
-              <div className="dt-stat-value">
-                <Counter target={s.value} />
-                <span className="dt-stat-unit">{s.unit}</span>
-              </div>
-              <div className="dt-bar">
-                <div className="dt-bar-fill" style={{ width: `${s.pct}%` }} />
-              </div>
+            <div className="v-card v-stat" key={s.name}>
+              <span className="v-stat-name">{s.name}</span>
+              <span className="v-stat-value">{s.value}</span>
+              <span className="v-stat-trend">{s.trend}</span>
             </div>
           ))}
         </section>
 
-        {/* Learning Path / Protocols */}
-        <section className="dt-block">
-          <div className="dt-block-head">
-            <h2 className="dt-h2">LEARNING PATH</h2>
-            <span className="dt-block-meta">2 / 3 PROTOCOLS</span>
-          </div>
-          <div className="dt-protocols">
-            {PROTOCOLS.map((p) => (
-              <div className={`dt-card dt-protocol is-${p.state}`} key={p.n}>
-                {p.state === 'active' && (
-                  <span className="dt-badge dt-badge-active">
-                    <span className="dt-pulse" /> ACTIVE PROTOCOL
-                  </span>
-                )}
-                {p.state === 'done' && <span className="dt-badge dt-badge-done">✓ COMPLETED</span>}
-                {p.state === 'standby' && <span className="dt-badge dt-badge-standby">STANDBY</span>}
-
-                <span className="dt-protocol-n">{p.n}</span>
-                <div className="dt-protocol-body">
-                  <span className="dt-protocol-label">PROTOCOL {p.n}</span>
-                  <h3 className="dt-protocol-title">{p.title}</h3>
-                  <span className="dt-protocol-sub">{p.sub}</span>
-                  <div className="dt-bar">
-                    <div className="dt-bar-fill" style={{ width: `${p.pct}%` }} />
-                  </div>
-                  <span className="dt-protocol-pct">{p.pct}% COMPLETE</span>
+        {/* Learning path */}
+        <section className="v-block">
+          <h2 className="v-h2">Learning path</h2>
+          <div className="v-stages">
+            {STAGES.map((st) => (
+              <div className={`v-card v-stage${st.active ? ' is-active' : ''}`} key={st.title}>
+                <div className="v-stage-head">
+                  <span className="v-stage-title">{st.title}</span>
+                  <span className="v-stage-pct">{st.pct}%</span>
+                </div>
+                <span className="v-stage-sub">{st.sub}</span>
+                <div className="v-bar">
+                  <div className="v-bar-fill" style={{ width: `${st.pct}%` }} />
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        <div className="dt-rule" />
-
         {/* Two columns */}
-        <section className="dt-cols">
-          {/* Recent Activity */}
-          <div className="dt-card dt-panel">
-            <div className="dt-block-head">
-              <h2 className="dt-h2">RECENT ACTIVITY</h2>
-              <span className="dt-block-meta">LOG</span>
-            </div>
-            <ul className="dt-log">
-              {ACTIVITY.map((a) => (
-                <li className="dt-log-row" key={a.word}>
-                  <span className="dt-log-ts">[{a.ts}]</span>
-                  <span className="dt-dot" />
-                  <span className="dt-log-word">{a.word}</span>
-                  <span className="dt-log-tr">{a.tr}</span>
-                </li>
+        <section className="v-cols">
+          {/* Recent words */}
+          <div className="v-block">
+            <h2 className="v-h2">Recent words</h2>
+            <div className="v-card v-list">
+              {WORDS.map((w) => (
+                <div className="v-list-row" key={w.word}>
+                  <div className="v-list-main">
+                    <span className="v-list-word">{w.word}</span>
+                    <span className="v-list-tr">{w.tr}</span>
+                  </div>
+                  <span className="v-list-time">{w.time}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="dt-card dt-panel">
-            <div className="dt-block-head">
-              <h2 className="dt-h2">QUICK ACTIONS</h2>
-              <span className="dt-block-meta">CMD</span>
-            </div>
-            <div className="dt-actions">
+          {/* Actions */}
+          <div className="v-block">
+            <h2 className="v-h2">Actions</h2>
+            <div className="v-actions">
               {ACTIONS.map((a) => (
-                <button className="dt-action" key={a} onClick={(e) => e.preventDefault()}>
-                  <span className="dt-action-prompt">&gt;</span>
-                  <span className="dt-action-cmd">{a}</span>
+                <button className="v-action" key={a} onClick={(e) => e.preventDefault()}>
+                  {a}
                 </button>
               ))}
             </div>
@@ -225,291 +188,155 @@ export default function DesignTestPage() {
 }
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+.v-root {
+  --bg: #000000;
+  --sidebar: #0a0a0a;
+  --card: #111111;
+  --border: #1f1f1f;
+  --border-hover: #333333;
+  --text: #ffffff;
+  --text-2: #666666;
+  --hover-bg: #1a1a1a;
+  --green: #3fb950;
+  --blue: #0070f3;
 
-.dt-root {
-  --bg: #04080f;
-  --sidebar: #060d18;
-  --accent: #00b4d8;
-  --accent-2: #0077b6;
-  --text: #caf0f8;
-  --text-2: #4a7c8e;
-  --border: rgba(0, 180, 216, 0.15);
-  --glow: rgba(0, 180, 216, 0.06);
-  --green: #2dd4bf;
-  --mono: 'JetBrains Mono', ui-monospace, monospace;
-
-  position: relative;
   min-height: 100vh;
-  background-color: var(--bg);
-  background-image: radial-gradient(1000px 600px at 78% -12%, rgba(0,180,216,0.07), transparent 70%);
+  background: var(--bg);
   color: var(--text);
-  font-family: var(--mono);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  font-size: 14px;
+  animation: v-fade 200ms ease both;
 }
-
-/* (1) scanlines overlay */
-.dt-scanlines {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 50;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(202, 240, 248, 1) 0px,
-    rgba(202, 240, 248, 1) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-  opacity: 0.03;
-}
-
-/* (8) top loading bar */
-.dt-loadbar {
-  position: fixed;
-  top: 0; left: 0;
-  height: 2px;
-  width: 0;
-  z-index: 60;
-  background: linear-gradient(90deg, var(--accent-2), var(--accent));
-  box-shadow: 0 0 12px var(--accent);
-  animation: dt-load 1300ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-@keyframes dt-load {
-  0%   { width: 0; opacity: 1; }
-  75%  { width: 100%; opacity: 1; }
-  100% { width: 100%; opacity: 0; }
-}
+@keyframes v-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* ── Sidebar ───────────────────────────────── */
-.dt-sidebar {
+.v-sidebar {
   position: fixed;
   top: 0; left: 0; bottom: 0;
-  width: 240px;
+  width: 220px;
   background: var(--sidebar);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
-  z-index: 20;
+  padding: 20px 12px;
 }
-.dt-logo { display: flex; align-items: center; gap: 9px; }
-.dt-logo-glyph { color: var(--accent); font-size: 14px; text-shadow: 0 0 10px var(--accent); }
-.dt-logo-text { font-weight: 800; font-size: 14px; letter-spacing: 2px; color: var(--text); }
+.v-logo { display: flex; align-items: center; gap: 9px; padding: 4px 8px 24px; }
+.v-logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text); }
+.v-logo-text { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
 
-/* (6) pulsing online dot */
-.dt-online {
-  display: flex; align-items: center; gap: 7px;
-  margin: 9px 0 26px 2px;
-  font-size: 9.5px; letter-spacing: 2px; color: var(--green);
-}
-.dt-pulse {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 6px var(--green);
-  animation: dt-pulse 1.6s ease-in-out infinite;
-}
-@keyframes dt-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px var(--green); }
-  50%      { opacity: 0.35; transform: scale(0.75); box-shadow: 0 0 2px var(--green); }
-}
-
-.dt-nav { display: flex; flex-direction: column; gap: 1px; }
-.dt-nav-item {
-  position: relative;
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 12px 10px 14px;
+.v-nav { display: flex; flex-direction: column; gap: 1px; }
+.v-nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 8px;
+  border-radius: 6px;
   color: var(--text-2);
-  font-size: 12px; letter-spacing: 1px;
+  font-size: 13.5px;
   text-decoration: none;
-  transition: color 200ms ease, background 200ms ease;
+  transition: background 150ms ease, color 150ms ease;
 }
-/* (5) cyan line on the left that grows width 0 -> 100% on hover */
-.dt-nav-item::after {
-  content: '';
-  position: absolute;
-  left: 0; bottom: 6px;
-  height: 1px; width: 0;
-  background: var(--accent);
-  box-shadow: 0 0 6px var(--accent);
-  transition: width 220ms ease;
-}
-.dt-nav-item:hover { color: var(--text); background: var(--glow); }
-.dt-nav-item:hover::after { width: 100%; }
-.dt-nav-item.is-active { color: var(--accent); background: rgba(0,180,216,0.08); }
-.dt-nav-item.is-active::after { width: 100%; }
-.dt-nav-code { color: var(--accent); font-weight: 700; }
-.dt-nav-slash { color: var(--text-2); opacity: 0.5; }
-.dt-nav-label { font-weight: 500; }
+.v-nav-item:hover { background: var(--hover-bg); color: var(--text); }
+.v-nav-item.is-active { color: var(--text); }
+.v-nav-icon { width: 16px; height: 16px; flex-shrink: 0; }
 
-.dt-id {
+.v-user {
   margin-top: auto;
-  padding-top: 16px;
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px;
   border-top: 1px solid var(--border);
-  display: flex; flex-direction: column; gap: 5px;
+  padding-top: 14px;
 }
-.dt-id-row { display: flex; justify-content: space-between; font-size: 10px; letter-spacing: 1.5px; }
-.dt-id-label { color: var(--text-2); }
-.dt-id-val { color: var(--accent); font-weight: 700; }
+.v-avatar {
+  width: 26px; height: 26px; flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  font-size: 10.5px; font-weight: 600; color: var(--text-2);
+}
+.v-user-email {
+  font-size: 12px; color: var(--text-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
 /* ── Main ──────────────────────────────────── */
-.dt-main { margin-left: 240px; padding: 40px 46px 70px; max-width: 1200px; }
+.v-main { margin-left: 220px; padding: 56px 48px 80px; max-width: 1100px; }
 
-.dt-head { display: flex; align-items: baseline; justify-content: space-between; }
-.dt-h1 {
-  display: flex; align-items: center;
-  margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 4px; color: var(--text);
-  min-height: 30px;
-}
-/* (4) blinking caret for typing effect */
-.dt-caret {
-  display: inline-block;
-  width: 9px; height: 20px;
-  margin-left: 6px;
-  background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
-  animation: dt-blink 1s steps(1) infinite;
-}
-@keyframes dt-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
-.dt-clock { font-size: 11px; letter-spacing: 1px; color: var(--text-2); }
-
-.dt-rule {
-  height: 1px;
-  background: linear-gradient(90deg, var(--border), transparent);
-  margin: 22px 0;
-}
+.v-head { margin-bottom: 36px; }
+.v-h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.6px; }
+.v-sub { margin: 6px 0 0; font-size: 14px; color: var(--text-2); }
 
 /* ── Cards (shared) ────────────────────────── */
-.dt-card {
-  position: relative;
-  background: var(--sidebar);
+.v-card {
+  background: var(--card);
   border: 1px solid var(--border);
-  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  border-radius: 10px;
+  transition: border-color 150ms ease, transform 150ms ease;
 }
-/* (2) decorative L-shaped corner brackets */
-.dt-card::before,
-.dt-card::after {
-  content: '';
-  position: absolute;
-  width: 12px; height: 12px;
-  border-color: var(--accent);
-  border-style: solid;
-  opacity: 0.35;
-  transition: opacity 200ms ease, width 200ms ease, height 200ms ease;
-}
-.dt-card::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
-.dt-card::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
-/* (7) thin cyan glow + lift on hover */
-.dt-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(0, 180, 216, 0.4);
-  box-shadow: 0 0 0 1px rgba(0,180,216,0.1), 0 12px 30px rgba(0,0,0,0.5), 0 0 22px rgba(0,180,216,0.12);
-}
-.dt-card:hover::before,
-.dt-card:hover::after { opacity: 1; width: 16px; height: 16px; }
-
-/* shared progress bar */
-.dt-bar { height: 2px; background: rgba(0,180,216,0.12); overflow: hidden; }
-.dt-bar-fill { height: 100%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.v-card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
 
 /* ── Stat cards ────────────────────────────── */
-.dt-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-.dt-stat { padding: 16px 16px 14px; }
-.dt-stat-head { display: flex; flex-direction: column; gap: 3px; margin-bottom: 14px; }
-.dt-stat-code { font-size: 9.5px; letter-spacing: 2px; color: var(--accent); }
-.dt-stat-name { font-size: 10.5px; letter-spacing: 1.5px; color: var(--text-2); }
-.dt-stat-value {
-  display: flex; align-items: baseline; gap: 7px;
-  font-size: 34px; font-weight: 800; line-height: 1; color: var(--text);
-  margin-bottom: 14px;
-  text-shadow: 0 0 18px rgba(0,180,216,0.25);
+.v-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.v-stat { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.v-stat-name { font-size: 13px; color: var(--text-2); }
+.v-stat-value {
+  font-family: ui-monospace, 'SF Mono', 'Menlo', monospace;
+  font-size: 30px; font-weight: 600; letter-spacing: -1px; line-height: 1;
+  color: var(--text);
 }
-.dt-stat-unit { font-size: 10px; font-weight: 500; letter-spacing: 1px; color: var(--text-2); }
+.v-stat-trend { font-size: 12px; color: var(--green); }
 
-/* ── Protocols ─────────────────────────────── */
-.dt-block { margin-top: 30px; }
-.dt-block-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
-.dt-h2 { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 2.5px; color: var(--text); }
-.dt-block-meta { font-size: 10px; letter-spacing: 1.5px; color: var(--text-2); }
+/* ── Blocks ────────────────────────────────── */
+.v-block { margin-top: 36px; }
+.v-h2 { margin: 0 0 14px; font-size: 13px; font-weight: 600; color: var(--text-2); }
 
-.dt-protocols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.dt-protocol { padding: 20px; display: flex; gap: 14px; }
-.dt-protocol-n {
-  font-size: 46px; font-weight: 800; line-height: 0.85;
-  color: rgba(0, 180, 216, 0.1);
-  user-select: none;
+/* ── Learning path ─────────────────────────── */
+.v-stages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.v-stage { padding: 18px; display: flex; flex-direction: column; gap: 6px; }
+.v-stage.is-active { border-color: var(--text); }
+.v-stage-head { display: flex; align-items: baseline; justify-content: space-between; }
+.v-stage-title { font-size: 14px; font-weight: 600; }
+.v-stage-pct {
+  font-family: ui-monospace, 'SF Mono', 'Menlo', monospace;
+  font-size: 12px; color: var(--text-2);
 }
-.dt-protocol-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.dt-protocol-label { font-size: 9px; letter-spacing: 2px; color: var(--text-2); }
-.dt-protocol-title { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: 1px; }
-.dt-protocol-sub { font-size: 10.5px; letter-spacing: 1px; color: var(--text-2); margin-bottom: 8px; }
-.dt-protocol-pct { margin-top: 6px; font-size: 9.5px; letter-spacing: 1px; color: var(--text-2); }
-
-.dt-protocol.is-active { border-color: rgba(0,180,216,0.5); box-shadow: 0 0 0 1px rgba(0,180,216,0.15), 0 0 22px rgba(0,180,216,0.1); }
-.dt-protocol.is-active .dt-protocol-n { color: rgba(0,180,216,0.22); }
-.dt-protocol.is-done .dt-bar-fill { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.dt-protocol.is-standby { opacity: 0.5; }
-
-.dt-badge {
-  position: absolute; top: 14px; right: 14px;
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
-  padding: 4px 8px; border-radius: 2px;
-}
-.dt-badge-active { color: var(--accent); border: 1px solid rgba(0,180,216,0.4); background: rgba(0,180,216,0.08); }
-.dt-badge-done { color: var(--green); border: 1px solid rgba(45,212,191,0.35); background: rgba(45,212,191,0.07); }
-.dt-badge-standby { color: var(--text-2); border: 1px solid var(--border); }
+.v-stage-sub { font-size: 13px; color: var(--text-2); margin-bottom: 8px; }
+.v-bar { height: 4px; border-radius: 4px; background: #1f1f1f; overflow: hidden; }
+.v-bar-fill { height: 100%; background: var(--text); border-radius: 4px; }
+.v-stage:not(.is-active) .v-bar-fill { background: var(--text-2); }
 
 /* ── Two columns ───────────────────────────── */
-.dt-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-.dt-panel { padding: 20px; }
+.v-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
 
-.dt-log { list-style: none; margin: 0; padding: 0; }
-.dt-log-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 0;
-  border-bottom: 1px solid rgba(0,180,216,0.07);
-  font-size: 12px;
+.v-list { padding: 4px 18px; }
+.v-list-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
 }
-.dt-log-row:last-child { border-bottom: 0; }
-.dt-log-ts { color: var(--text-2); font-size: 10.5px; letter-spacing: 0.5px; }
-.dt-dot {
-  width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
-  background: var(--accent); box-shadow: 0 0 6px var(--accent);
-}
-.dt-log-word { color: var(--text); font-weight: 500; }
-.dt-log-tr { color: var(--text-2); font-size: 11px; margin-left: auto; }
+.v-list-row:last-child { border-bottom: 0; }
+.v-list-main { display: flex; flex-direction: column; gap: 2px; }
+.v-list-word { font-size: 14px; font-weight: 500; }
+.v-list-tr { font-size: 13px; color: var(--text-2); }
+.v-list-time { font-size: 12px; color: var(--text-2); }
 
-.dt-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.dt-action {
-  position: relative;
-  display: flex; align-items: center; gap: 9px;
-  padding: 13px 14px;
+.v-actions { display: flex; flex-direction: column; gap: 8px; }
+.v-action {
+  width: 100%;
+  padding: 11px 14px;
   border: 1px solid var(--border);
-  background: transparent;
+  border-radius: 8px;
+  background: var(--card);
   color: var(--text);
-  font-family: var(--mono); font-size: 12px; letter-spacing: 1px;
-  cursor: pointer; overflow: hidden;
+  font-family: inherit; font-size: 13.5px;
   text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
 }
-/* left-to-right cyan fill on hover */
-.dt-action::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, rgba(0,180,216,0.18), rgba(0,180,216,0.04));
-  transform: scaleX(0); transform-origin: left;
-  transition: transform 240ms ease;
-  z-index: 0;
-}
-.dt-action:hover::before { transform: scaleX(1); }
-.dt-action:hover { border-color: rgba(0,180,216,0.45); }
-.dt-action-prompt, .dt-action-cmd { position: relative; z-index: 1; }
-.dt-action-prompt { color: var(--accent); font-weight: 700; }
+.v-action:hover { border-color: var(--border-hover); background: var(--hover-bg); transform: translateY(-1px); }
 
 @media (max-width: 900px) {
-  .dt-stats { grid-template-columns: repeat(2, 1fr); }
-  .dt-protocols { grid-template-columns: 1fr; }
-  .dt-cols { grid-template-columns: 1fr; }
+  .v-stats { grid-template-columns: repeat(2, 1fr); }
+  .v-stages { grid-template-columns: 1fr; }
+  .v-cols { grid-template-columns: 1fr; }
 }
 `;

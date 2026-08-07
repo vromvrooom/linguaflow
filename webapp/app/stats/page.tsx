@@ -5,17 +5,10 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import { Flame, Clock, Plus, Search, BookMarked, type LucideIcon } from 'lucide-react';
-import Header from '@/components/Header';
+import AppShell, { Spinner } from '@/components/AppShell';
+import { CHART } from '@/lib/chart';
 
 const API = '/api';
-
-// Shared chart theme — matches the neutral palette
-const CHART = {
-  grid: '#262626',
-  tick: '#737373',
-  fill: '#e5e5e5',
-  tooltip: { background: '#1a1a1a', border: '1px solid #262626', borderRadius: '8px', color: '#fafafa' },
-};
 
 interface DailyStat {
   date: string;
@@ -27,15 +20,20 @@ interface DailyStat {
   streakDay: number;
 }
 
-interface StatCardProps { label: string; value: string | number; icon: LucideIcon; sub?: string; }
+interface StatCardProps {
+  label: string; value: string | number; icon: LucideIcon; sub?: string;
+  tone: { bg: string; fg: string };
+}
 
-function StatCard({ label, value, icon: Icon, sub }: StatCardProps) {
+function StatCard({ label, value, icon: Icon, sub, tone }: StatCardProps) {
   return (
-    <div className="bg-card border border-line rounded-xl p-5 space-y-1">
-      <Icon size={18} strokeWidth={1.75} className="text-dim" />
-      <p className="text-dim text-sm">{label}</p>
-      <p className="text-3xl font-semibold text-ink tracking-tight">{value}</p>
-      {sub && <p className="text-dim/70 text-xs">{sub}</p>}
+    <div className="lift rounded-2xl border border-line bg-surface p-5 shadow-card">
+      <span className={`flex h-10 w-10 items-center justify-center rounded-full ${tone.bg} ${tone.fg}`}>
+        <Icon size={20} strokeWidth={2} />
+      </span>
+      <p className="mt-4 text-3xl font-bold tracking-tight text-ink tabular-nums">{value}</p>
+      <p className="mt-0.5 text-sm font-medium text-ink">{label}</p>
+      {sub && <p className="text-xs text-dim">{sub}</p>}
     </div>
   );
 }
@@ -85,104 +83,96 @@ export default function StatsPage() {
 
   const chartData = toChartData(weeklyStats);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-canvas">
-        <Header />
-        <div className="flex items-center justify-center h-[60vh]">
-          <div className="w-8 h-8 border-2 border-line border-t-accent rounded-full animate-spin" />
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <AppShell><Spinner /></AppShell>;
 
   return (
-    <div className="min-h-screen bg-canvas text-ink">
-      <Header />
+    <AppShell>
+      <header>
+        <h1 className="text-3xl font-bold tracking-tight text-ink">Статистика</h1>
+        <p className="mt-1.5 text-dim">Твій прогрес занурення в англійську</p>
+      </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-8 space-y-8">
-        <div>
-          <h1 className="text-2xl font-semibold text-ink tracking-tight">Статистика</h1>
-          <p className="text-dim text-sm mt-1">Твій прогрес занурення в англійську</p>
+      {/* Today */}
+      <section className="mt-8">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-dim">Сьогодні</h2>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          <StatCard label="Streak" sub="днів підряд" value={`${today?.streakDay ?? 0}`}
+            icon={Flame} tone={{ bg: 'bg-warm', fg: 'text-[#e07a2f]' }} />
+          <StatCard label="Хвилин англійською" sub="сьогодні" value={today?.englishMinutes ?? 0}
+            icon={Clock} tone={{ bg: 'bg-[#eef4ff]', fg: 'text-[#3b6fb8]' }} />
+          <StatCard label="Слів додано" sub="сьогодні" value={today?.wordsAdded ?? 0}
+            icon={Plus} tone={{ bg: 'bg-brand-soft', fg: 'text-brand' }} />
+          <StatCard label="Пошуків" sub="англійських" value={today?.englishSearches ?? 0}
+            icon={Search} tone={{ bg: 'bg-[#f6f0ff]', fg: 'text-[#7c5cc4]' }} />
+          <StatCard label="Всього слів" sub="у словнику" value={wordTotal}
+            icon={BookMarked} tone={{ bg: 'bg-brand-soft', fg: 'text-brand' }} />
         </div>
+      </section>
 
-        {/* Today's stats */}
-        <div>
-          <h2 className="text-sm font-medium text-dim uppercase tracking-wider mb-4">Сьогодні</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <StatCard label="Streak" value={`${today?.streakDay ?? 0} дн.`} icon={Flame} sub="днів підряд" />
-            <StatCard label="Хвилин англійською" value={today?.englishMinutes ?? 0} icon={Clock} sub="сьогодні" />
-            <StatCard label="Слів додано" value={today?.wordsAdded ?? 0} icon={Plus} sub="сьогодні" />
-            <StatCard label="Пошуків" value={today?.englishSearches ?? 0} icon={Search} sub="англійських" />
-            <StatCard label="Всього слів" value={wordTotal} icon={BookMarked} sub="у словнику" />
-          </div>
+      {/* Chart */}
+      <section className="mt-10">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-dim">
+          Активність за 7 днів (хв/день)
+        </h2>
+        <div className="mt-4 rounded-2xl border border-line bg-surface p-6 shadow-card">
+          {chartData.every((d) => d.хвилин === 0) ? (
+            <div className="flex h-40 flex-col items-center justify-center gap-2">
+              <p className="font-medium text-ink">Даних поки немає</p>
+              <p className="text-sm text-dim">Встанови розширення Chrome щоб відстежувати час</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} vertical={false} />
+                <XAxis dataKey="day" tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={CHART.tooltip} cursor={{ fill: '#2d6a4f0d' }} />
+                <Bar dataKey="хвилин" fill={CHART.brand} radius={[6, 6, 0, 0]} maxBarSize={44} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
+      </section>
 
-        {/* Chart */}
-        <div>
-          <h2 className="text-sm font-medium text-dim uppercase tracking-wider mb-4">
-            Активність за 7 днів (хв/день)
-          </h2>
-          <div className="bg-card border border-line rounded-xl p-6">
-            {chartData.every((d) => d.хвилин === 0) ? (
-              <div className="flex flex-col items-center justify-center h-40 gap-2">
-                <p className="text-dim">Даних поки немає</p>
-                <p className="text-dim/70 text-sm">
-                  Встанови розширення Chrome щоб відстежувати час
-                </p>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} />
-                  <XAxis dataKey="day" tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={CHART.tooltip} cursor={{ fill: '#ffffff0d' }} />
-                  <Bar dataKey="хвилин" fill={CHART.fill} radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </div>
-
-        {/* History table */}
-        {weeklyStats.some((s) => s.englishMinutes > 0) && (
-          <div>
-            <h2 className="text-sm font-medium text-dim uppercase tracking-wider mb-4">Активність тижня</h2>
-            <div className="bg-card border border-line rounded-xl overflow-hidden">
-              <div className="overflow-x-auto scrollbar-thin">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-line bg-panel">
-                      {['Дата', 'Англ. хв', 'Слів додано', 'Карток', 'Пошуків', 'Streak'].map((h) => (
-                        <th key={h} className="text-left px-4 py-3 text-dim font-medium whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line">
-                    {[...weeklyStats].reverse().map((s) => (
-                      <tr key={s.date} className="hover:bg-hover transition-colors">
-                        <td className="px-4 py-3 text-dim tabular-nums whitespace-nowrap">
-                          {new Date(s.date).toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: '2-digit' })}
-                        </td>
-                        <td className="px-4 py-3 text-ink font-medium tabular-nums">{s.englishMinutes}</td>
-                        <td className="px-4 py-3 text-dim tabular-nums">{s.wordsAdded}</td>
-                        <td className="px-4 py-3 text-dim tabular-nums">{s.cardsReviewed}</td>
-                        <td className="px-4 py-3 text-dim tabular-nums">{s.englishSearches}</td>
-                        <td className="px-4 py-3">
-                          <span className="inline-flex items-center gap-1.5 text-ink tabular-nums">
-                            <Flame size={16} strokeWidth={1.75} className="text-dim" /> {s.streakDay}
-                          </span>
-                        </td>
-                      </tr>
+      {/* History table */}
+      {weeklyStats.some((s) => s.englishMinutes > 0) && (
+        <section className="mt-10">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-dim">Активність тижня</h2>
+          <div className="mt-4 overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
+            <div className="overflow-x-auto scrollbar-thin">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-line bg-paper">
+                    {['Дата', 'Англ. хв', 'Слів додано', 'Карток', 'Пошуків', 'Streak'].map((h) => (
+                      <th key={h} className="whitespace-nowrap px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-dim">
+                        {h}
+                      </th>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-line">
+                  {[...weeklyStats].reverse().map((s) => (
+                    <tr key={s.date} className="transition-colors duration-200 hover:bg-paper">
+                      <td className="whitespace-nowrap px-5 py-3.5 tabular-nums text-dim">
+                        {new Date(s.date).toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                      </td>
+                      <td className="px-5 py-3.5 font-semibold tabular-nums text-ink">{s.englishMinutes}</td>
+                      <td className="px-5 py-3.5 tabular-nums text-ink/80">{s.wordsAdded}</td>
+                      <td className="px-5 py-3.5 tabular-nums text-ink/80">{s.cardsReviewed}</td>
+                      <td className="px-5 py-3.5 tabular-nums text-ink/80">{s.englishSearches}</td>
+                      <td className="px-5 py-3.5">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-warm px-2.5 py-1 text-xs font-semibold tabular-nums text-[#c96a24]">
+                          <Flame size={14} strokeWidth={2.5} /> {s.streakDay}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-        )}
-      </main>
-    </div>
+        </section>
+      )}
+    </AppShell>
   );
 }

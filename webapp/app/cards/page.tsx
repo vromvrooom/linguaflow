@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, ArrowLeft, Plus, Loader2 } from 'lucide-react';
-import Header from '@/components/Header';
+import AppShell, { Spinner } from '@/components/AppShell';
 
 const API = '/api';
 
@@ -18,13 +18,13 @@ interface SrsCard {
   };
 }
 
-// Monochrome ramp — brightness rises with recall quality
+// Warm-to-green ramp: harder recall on the left, confident on the right
 const RATINGS = [
-  { quality: 0, label: 'Не знав',   color: 'bg-hover text-dim hover:bg-active hover:text-ink border border-line', key: '1' },
-  { quality: 2, label: 'Важко',     color: 'bg-active text-[#a3a3a3] hover:text-ink border border-line',          key: '2' },
-  { quality: 3, label: 'Нормально', color: 'bg-[#333333] text-[#c4c4c4] hover:text-ink border border-[#3d3d3d]',  key: '3' },
-  { quality: 4, label: 'Добре',     color: 'bg-[#a3a3a3] text-canvas hover:bg-[#c4c4c4]',                         key: '4' },
-  { quality: 5, label: 'Ідеально',  color: 'bg-accent text-canvas hover:bg-ink',                                  key: '5' },
+  { quality: 0, label: 'Не знав',   color: 'bg-[#fdeceb] text-[#c0392b] hover:bg-[#fbdcda]', key: '1' },
+  { quality: 2, label: 'Важко',     color: 'bg-[#fdf1e3] text-[#c96a24] hover:bg-[#fae5cd]', key: '2' },
+  { quality: 3, label: 'Нормально', color: 'bg-[#fdf8e3] text-[#a08417] hover:bg-[#faf1cd]', key: '3' },
+  { quality: 4, label: 'Добре',     color: 'bg-brand-soft text-brand hover:bg-[#e2f5ea]',    key: '4' },
+  { quality: 5, label: 'Ідеально',  color: 'bg-brand text-white hover:bg-brand-dark',        key: '5' },
 ] as const;
 
 function authHeaders() {
@@ -116,154 +116,154 @@ export default function CardsPage() {
   const done = !loading && current >= total;
   const progress = total > 0 ? Math.round((reviewed / total) * 100) : 0;
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-canvas"><Header />
-        <div className="flex items-center justify-center h-[60vh]">
-          <div className="w-8 h-8 border-2 border-line border-t-accent rounded-full animate-spin" />
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <AppShell max="max-w-xl"><Spinner /></AppShell>;
 
   if (done) {
     return (
-      <div className="min-h-screen bg-canvas"><Header />
-        <div className="flex flex-col items-center justify-center h-[65vh] gap-4 text-center px-4">
-          <CheckCircle2 size={48} strokeWidth={1.25} className="text-dim" />
-          <h2 className="text-2xl font-semibold text-ink tracking-tight">Все повторено на сьогодні!</h2>
-          <p className="text-dim">{reviewed > 0 ? `Переглянуто ${reviewed} карток` : 'Карток на повторення немає'}</p>
-          <button onClick={() => router.push('/dashboard')}
-            className="mt-2 flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-ink text-canvas font-medium transition-colors">
-            <ArrowLeft size={16} strokeWidth={2} /> Дашборд
+      <AppShell max="max-w-xl">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-line bg-surface px-6 py-20 text-center shadow-card">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-soft text-brand">
+            <CheckCircle2 size={32} strokeWidth={2} />
+          </span>
+          <h2 className="text-2xl font-bold tracking-tight text-ink">Все повторено на сьогодні!</h2>
+          <p className="text-dim">
+            {reviewed > 0 ? `Переглянуто ${reviewed} карток` : 'Карток на повторення немає'}
+          </p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="press mt-2 flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 font-semibold text-white hover:bg-brand-dark transition-colors duration-200"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} /> На дашборд
           </button>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-canvas text-ink">
-      <Header />
-      <main className="max-w-xl mx-auto px-4 py-8 space-y-6">
-
-        {/* Progress */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm text-dim">
-            <span>Переглянуто {reviewed} з {total}</span>
-            <span className="tabular-nums">{progress}%</span>
-          </div>
-          <div className="h-1.5 bg-line rounded-full overflow-hidden">
-            <div className="h-full bg-accent rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
-          </div>
+    <AppShell max="max-w-xl">
+      {/* Progress */}
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="font-medium text-ink">Переглянуто {reviewed} з {total}</span>
+          <span className="text-dim tabular-nums">{progress}%</span>
         </div>
-
-        {/* Flip card */}
-        <div style={{ perspective: '1200px' }}>
+        <div className="h-2 overflow-hidden rounded-full bg-line">
           <div
-            style={{
-              transformStyle: 'preserve-3d',
-              transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-              transition: 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)',
-              position: 'relative',
-              minHeight: '260px',
-            }}
+            className="h-full rounded-full bg-brand transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Flip card */}
+      <div className="mt-6" style={{ perspective: '1200px' }}>
+        <div
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            transition: 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)',
+            position: 'relative',
+            minHeight: '280px',
+          }}
+        >
+          {/* Front */}
+          <div
+            style={{ backfaceVisibility: 'hidden' }}
+            className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-line bg-surface p-8 text-center shadow-card"
           >
-            {/* Front */}
-            <div
-              style={{ backfaceVisibility: 'hidden' }}
-              className="absolute inset-0 bg-card border border-line rounded-2xl p-8 flex flex-col items-center justify-center gap-4 text-center"
+            <p className="text-xs font-semibold uppercase tracking-wider text-dim">Слово</p>
+            <h2 className="text-4xl font-bold tracking-tight text-ink">{card.word.word}</h2>
+            {card.word.contextSentence && (
+              <p className="text-sm italic text-dim">&laquo;{card.word.contextSentence}&raquo;</p>
+            )}
+            <button
+              onClick={() => setFlipped(true)}
+              className="press mt-2 rounded-xl border border-line px-5 py-2.5 text-sm font-medium text-ink hover:border-brand hover:text-brand transition-colors duration-200"
             >
-              <p className="text-xs text-dim uppercase tracking-wider">Слово</p>
-              <h2 className="text-4xl font-semibold text-ink tracking-tight">{card.word.word}</h2>
-              {card.word.contextSentence && (
-                <p className="text-dim text-sm italic">&laquo;{card.word.contextSentence}&raquo;</p>
-              )}
-              <button
-                onClick={() => setFlipped(true)}
-                className="mt-2 px-5 py-2.5 rounded-lg border border-line text-dim hover:text-ink hover:bg-hover hover:border-dim transition-colors text-sm"
-              >
-                Показати переклад <span className="text-dim/70 ml-1">пробіл</span>
-              </button>
-            </div>
+              Показати переклад <span className="ml-1 text-dim">пробіл</span>
+            </button>
+          </div>
 
-            {/* Back */}
-            <div
-              style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-              className="absolute inset-0 bg-card border border-dim rounded-2xl p-8 flex flex-col items-center justify-center gap-3 text-center"
-            >
-              <p className="text-xs text-dim uppercase tracking-wider">{card.word.word}</p>
+          {/* Back */}
+          <div
+            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-brand bg-surface p-8 text-center shadow-card"
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-dim">{card.word.word}</p>
 
-              {card.word.translation ? (
-                <p className="text-3xl text-ink font-semibold tracking-tight">{card.word.translation}</p>
-              ) : addingTranslation ? (
-                <div className="flex flex-col items-center gap-2 w-full max-w-xs">
-                  <input
-                    autoFocus
-                    value={translationInput}
-                    onChange={(e) => setTranslationInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') handleSaveTranslation(); }}
-                    placeholder="Введіть переклад..."
-                    className="w-full px-3 py-2 rounded-lg bg-canvas border border-line text-ink text-center placeholder-dim focus:outline-none focus:border-dim text-sm transition-colors"
-                  />
-                  <div className="flex gap-2">
-                    <button onClick={handleSaveTranslation} disabled={savingTranslation}
-                      className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-accent hover:bg-ink text-canvas text-sm font-medium disabled:opacity-50 transition-colors">
-                      {savingTranslation
-                        ? <Loader2 size={16} strokeWidth={2} className="animate-spin" />
-                        : 'Зберегти'}
-                    </button>
-                    <button onClick={() => setAddingTranslation(false)}
-                      className="px-4 py-1.5 rounded-lg border border-line text-dim hover:text-ink hover:bg-hover text-sm transition-colors">
-                      Скасувати
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-2">
-                  <p className="text-dim italic text-sm">Переклад не додано</p>
+            {card.word.translation ? (
+              <p className="text-3xl font-bold tracking-tight text-brand">{card.word.translation}</p>
+            ) : addingTranslation ? (
+              <div className="flex w-full max-w-xs flex-col items-center gap-2">
+                <input
+                  autoFocus
+                  value={translationInput}
+                  onChange={(e) => setTranslationInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleSaveTranslation(); }}
+                  placeholder="Введіть переклад..."
+                  className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-center text-sm text-ink placeholder-dim focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all duration-200"
+                />
+                <div className="flex gap-2">
                   <button
-                    onClick={() => setAddingTranslation(true)}
-                    className="flex items-center gap-1.5 text-ink hover:text-dim text-sm transition-colors"
+                    onClick={handleSaveTranslation}
+                    disabled={savingTranslation}
+                    className="press flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark disabled:opacity-50 transition-colors duration-200"
                   >
-                    <Plus size={16} strokeWidth={2} /> Додати переклад
+                    {savingTranslation ? <Loader2 size={16} strokeWidth={2.5} className="animate-spin" /> : 'Зберегти'}
+                  </button>
+                  <button
+                    onClick={() => setAddingTranslation(false)}
+                    className="press rounded-xl border border-line px-4 py-2 text-sm font-medium text-dim hover:text-ink transition-colors duration-200"
+                  >
+                    Скасувати
                   </button>
                 </div>
-              )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-sm italic text-dim">Переклад не додано</p>
+                <button
+                  onClick={() => setAddingTranslation(true)}
+                  className="press flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-dark transition-colors duration-200"
+                >
+                  <Plus size={16} strokeWidth={2.5} /> Додати переклад
+                </button>
+              </div>
+            )}
 
-              {card.word.contextSentence && (
-                <p className="text-dim text-sm italic">&laquo;{card.word.contextSentence}&raquo;</p>
-              )}
-            </div>
+            {card.word.contextSentence && (
+              <p className="text-sm italic text-dim">&laquo;{card.word.contextSentence}&raquo;</p>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Rating */}
-        {flipped && (
-          <div className="space-y-2">
-            <p className="text-center text-sm text-dim">
-              Як добре ти знав це слово? <span className="text-dim/70">(клавіші 1–5)</span>
-            </p>
-            <div className="grid grid-cols-5 gap-2">
-              {RATINGS.map(({ quality, label, color, key }) => (
-                <button
-                  key={quality}
-                  onClick={() => handleRate(quality)}
-                  disabled={submitting}
-                  title={`${label} [${key}]`}
-                  className={`py-3 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 ${color}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+      {/* Rating */}
+      {flipped && (
+        <div className="mt-6 space-y-2.5">
+          <p className="text-center text-sm text-dim">
+            Як добре ти знав це слово? <span className="text-dim/70">(клавіші 1–5)</span>
+          </p>
+          <div className="grid grid-cols-5 gap-2">
+            {RATINGS.map(({ quality, label, color, key }) => (
+              <button
+                key={quality}
+                onClick={() => handleRate(quality)}
+                disabled={submitting}
+                title={`${label} [${key}]`}
+                className={`press rounded-xl py-3 text-sm font-semibold transition-colors duration-200 disabled:opacity-50 ${color}`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
+      )}
 
-        <p className="text-center text-xs text-dim">
-          Картка {current + 1} з {total} · інтервал {card.intervalDays} дн. · повторень {card.repetitions}
-        </p>
-      </main>
-    </div>
+      <p className="mt-6 text-center text-xs text-dim">
+        Картка {current + 1} з {total} · інтервал {card.intervalDays} дн. · повторень {card.repetitions}
+      </p>
+    </AppShell>
   );
 }

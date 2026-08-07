@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin", "cyrillic"] });
+// Inter, served from Google Fonts and self-hosted at build time by next/font
+const inter = Inter({
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "LinguaFlow",
@@ -15,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="uk" className="dark">
-      <body className={`${inter.className} antialiased bg-canvas text-ink`}>
+    <html lang="uk">
+      <body className={`${inter.className} ${inter.variable} bg-paper text-ink`}>
         {children}
       </body>
     </html>

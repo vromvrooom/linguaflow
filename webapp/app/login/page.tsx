@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { Languages, Loader2 } from 'lucide-react';
 import { setToken } from '@/lib/auth';
 import { syncWithExtension } from '@/lib/extension';
 
@@ -24,55 +25,66 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error;
-      setError(msg || 'Invalid email or password');
+      setError(msg || 'Невірний email або пароль');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-canvas">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-semibold text-ink tracking-tight">LinguaFlow</h1>
-          <p className="text-dim mt-1 text-sm">Увійдіть у свій акаунт</p>
+    <div className="flex min-h-screen items-center justify-center bg-paper px-5 py-12">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col items-center text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-soft text-brand">
+            <Languages size={26} strokeWidth={2} />
+          </span>
+          <h1 className="mt-4 text-3xl font-bold tracking-tight text-ink">LinguaFlow</h1>
+          <p className="mt-1.5 text-sm text-dim">Увійдіть у свій акаунт</p>
         </div>
-        <div className="bg-card border border-line rounded-xl p-6 space-y-4">
+
+        <form
+          onSubmit={handleSubmit}
+          className="mt-8 space-y-4 rounded-2xl border border-line bg-surface p-6 shadow-card"
+        >
           <div>
-            <label className="block text-sm text-dim mb-1.5">Email</label>
+            <label className="mb-1.5 block text-sm font-medium text-ink">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg bg-canvas border border-line text-ink placeholder-dim/70 focus:outline-none focus:border-dim transition-colors"
+              className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-ink placeholder-dim transition-all duration-200 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15"
               placeholder="you@example.com"
               required
             />
           </div>
           <div>
-            <label className="block text-sm text-dim mb-1.5">Пароль</label>
+            <label className="mb-1.5 block text-sm font-medium text-ink">Пароль</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg bg-canvas border border-line text-ink placeholder-dim/70 focus:outline-none focus:border-dim transition-colors"
+              className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-ink placeholder-dim transition-all duration-200 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15"
               placeholder="••••••••"
               required
             />
           </div>
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+          )}
           <button
-            type="button"
-            onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
+            type="submit"
             disabled={loading}
-            className="w-full py-2.5 rounded-lg bg-accent text-canvas font-medium hover:bg-ink disabled:opacity-50 transition-colors"
+            className="press flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3 font-semibold text-white transition-colors duration-200 hover:bg-brand-dark disabled:opacity-50"
           >
-            {loading ? 'Входимо...' : 'Увійти'}
+            {loading ? <Loader2 size={18} strokeWidth={2.5} className="animate-spin" /> : 'Увійти'}
           </button>
-        </div>
-        <p className="text-center text-sm text-dim">
+        </form>
+
+        <p className="mt-6 text-center text-sm text-dim">
           Немає акаунту?{' '}
-          <a href="/register" className="text-ink hover:text-dim underline underline-offset-4 transition-colors">Зареєструватись</a>
+          <a href="/register" className="font-semibold text-brand transition-colors duration-200 hover:text-brand-dark">
+            Зареєструватись
+          </a>
         </p>
       </div>
     </div>

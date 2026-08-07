@@ -22,15 +22,12 @@ interface DailyStat {
 
 interface StatCardProps {
   label: string; value: string | number; icon: LucideIcon; sub?: string;
-  tone: { bg: string; fg: string };
 }
 
-function StatCard({ label, value, icon: Icon, sub, tone }: StatCardProps) {
+function StatCard({ label, value, icon: Icon, sub }: StatCardProps) {
   return (
     <div className="lift rounded-2xl border border-line bg-surface p-5 shadow-card">
-      <span className={`flex h-10 w-10 items-center justify-center rounded-full ${tone.bg} ${tone.fg}`}>
-        <Icon size={20} strokeWidth={2} />
-      </span>
+      <Icon size={20} strokeWidth={2} className="text-dim" />
       <p className="mt-4 text-3xl font-bold tracking-tight text-ink tabular-nums">{value}</p>
       <p className="mt-0.5 text-sm font-medium text-ink">{label}</p>
       {sub && <p className="text-xs text-dim">{sub}</p>}
@@ -96,16 +93,11 @@ export default function StatsPage() {
       <section className="mt-8">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-dim">Сьогодні</h2>
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          <StatCard label="Streak" sub="днів підряд" value={`${today?.streakDay ?? 0}`}
-            icon={Flame} tone={{ bg: 'bg-warm', fg: 'text-[#e07a2f]' }} />
-          <StatCard label="Хвилин англійською" sub="сьогодні" value={today?.englishMinutes ?? 0}
-            icon={Clock} tone={{ bg: 'bg-[#eef4ff]', fg: 'text-[#3b6fb8]' }} />
-          <StatCard label="Слів додано" sub="сьогодні" value={today?.wordsAdded ?? 0}
-            icon={Plus} tone={{ bg: 'bg-brand-soft', fg: 'text-brand' }} />
-          <StatCard label="Пошуків" sub="англійських" value={today?.englishSearches ?? 0}
-            icon={Search} tone={{ bg: 'bg-[#f6f0ff]', fg: 'text-[#7c5cc4]' }} />
-          <StatCard label="Всього слів" sub="у словнику" value={wordTotal}
-            icon={BookMarked} tone={{ bg: 'bg-brand-soft', fg: 'text-brand' }} />
+          <StatCard label="Streak" sub="днів підряд" value={`${today?.streakDay ?? 0}`} icon={Flame} />
+          <StatCard label="Хвилин англійською" sub="сьогодні" value={today?.englishMinutes ?? 0} icon={Clock} />
+          <StatCard label="Слів додано" sub="сьогодні" value={today?.wordsAdded ?? 0} icon={Plus} />
+          <StatCard label="Пошуків" sub="англійських" value={today?.englishSearches ?? 0} icon={Search} />
+          <StatCard label="Всього слів" sub="у словнику" value={wordTotal} icon={BookMarked} />
         </div>
       </section>
 

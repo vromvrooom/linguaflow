@@ -9,9 +9,10 @@ const config: Config = {
     extend: {
       colors: {
         // ─── LinguaFlow palette (warm light) ─────────────────────────────────
-        paper: "#f8f7f4",       // page background — warm off-white
-        surface: "#ffffff",     // sidebar, cards
-        line: "#e8e4dc",        // borders
+        paper: "#f0ede8",       // page background — warm cream
+        surface: "#faf8f5",     // cards
+        sidebar: "#f5f2ed",     // sidebar
+        line: "#ddd8cf",        // borders
         ink: "#1a1a1a",         // primary text
         dim: "#8b8580",         // secondary text
         brand: "#2d6a4f",       // muted deep green

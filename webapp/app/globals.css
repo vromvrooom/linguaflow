@@ -5,13 +5,13 @@
 @layer base {
   :root {
     /* Warm light palette — mirrors tailwind.config.ts */
-    --background: 45 20% 97%;     /* #f8f7f4 */
+    --background: 34 21% 92%;     /* #f0ede8 */
     --foreground: 0 0% 10%;       /* #1a1a1a */
     --primary: 152 40% 30%;       /* #2d6a4f */
     --primary-foreground: 0 0% 100%;
-    --muted: 0 0% 100%;
+    --muted: 40 33% 97%;          /* #faf8f5 */
     --muted-foreground: 30 6% 53%; /* #8b8580 */
-    --border: 39 26% 89%;         /* #e8e4dc */
+    --border: 37 22% 84%;         /* #ddd8cf */
     --radius: 0.75rem;
   }
 }

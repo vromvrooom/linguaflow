@@ -107,16 +107,13 @@ function ProgressBar({ value, max, thick }: { value: number; max: number; thick?
 }
 
 function StatCard({
-  label, value, sub, icon: Icon, tone,
+  label, value, sub, icon: Icon,
 }: {
   label: string; value: string | number; sub: string; icon: LucideIcon;
-  tone: { bg: string; fg: string };
 }) {
   return (
     <div className="lift bg-surface border border-line rounded-2xl p-5 shadow-card">
-      <span className={`flex h-10 w-10 items-center justify-center rounded-full ${tone.bg} ${tone.fg}`}>
-        <Icon size={20} strokeWidth={2} />
-      </span>
+      <Icon size={20} strokeWidth={2} className="text-dim" />
       <p className="mt-4 text-3xl font-bold tracking-tight text-ink tabular-nums">{value}</p>
       <p className="mt-0.5 text-sm font-medium text-ink">{label}</p>
       <p className="text-xs text-dim">{sub}</p>
@@ -286,7 +283,7 @@ export default function DashboardPage() {
       {/* 1 — Greeting */}
       <header>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-ink">
-          Привіт{name && `, ${name}`} 👋
+          Привіт{name && `, ${name}`}
         </h1>
         <p className="mt-1.5 text-dim">Ось твій прогрес у вивченні англійської</p>
       </header>
@@ -330,21 +327,19 @@ export default function DashboardPage() {
 
       {/* 3 — Stat cards */}
       <section className="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatCard label="Збережено слів" sub="у словнику" value={wordCount} icon={BookMarked} />
         <StatCard
-          label="Збережено слів" sub="у словнику" value={wordCount}
-          icon={BookMarked} tone={{ bg: 'bg-brand-soft', fg: 'text-brand' }}
+          label="На повторення"
+          sub={cardsDue > 0 ? 'чекають на тебе' : 'все зроблено'}
+          value={cardsDue}
+          icon={RefreshCw}
         />
+        <StatCard label="Streak" sub="днів підряд" value={streak} icon={Flame} />
         <StatCard
-          label="На повторення" sub={cardsDue > 0 ? 'чекають на тебе' : 'все зроблено'} value={cardsDue}
-          icon={RefreshCw} tone={{ bg: 'bg-[#eef4ff]', fg: 'text-[#3b6fb8]' }}
-        />
-        <StatCard
-          label="Streak" sub="днів підряд" value={streak}
-          icon={Flame} tone={{ bg: 'bg-warm', fg: 'text-[#e07a2f]' }}
-        />
-        <StatCard
-          label="Поточна стадія" sub={STAGE_META[stage - 1].sub} value={`Стадія ${stage}`}
-          icon={Target} tone={{ bg: 'bg-[#f6f0ff]', fg: 'text-[#7c5cc4]' }}
+          label="Поточна стадія"
+          sub={STAGE_META[stage - 1].sub}
+          value={`Стадія ${stage}`}
+          icon={Target}
         />
       </section>
 

@@ -19,12 +19,12 @@ interface SrsCard {
   };
 }
 
-// Warm-to-green ramp: harder recall on the left, confident on the right
+// Amber ramp: a soft red for a miss, then warming toward the accent
 const RATINGS = [
-  { quality: 0, label: 'Не знав',   color: 'bg-[#fdeceb] text-[#c0392b] hover:bg-[#fbdcda]', key: '1' },
-  { quality: 2, label: 'Важко',     color: 'bg-[#fdf1e3] text-[#c96a24] hover:bg-[#fae5cd]', key: '2' },
-  { quality: 3, label: 'Нормально', color: 'bg-[#fdf8e3] text-[#a08417] hover:bg-[#faf1cd]', key: '3' },
-  { quality: 4, label: 'Добре',     color: 'bg-brand-soft text-brand hover:bg-[#e2f5ea]',    key: '4' },
+  { quality: 0, label: 'Не знав',   color: 'bg-[#fbeae7] text-[#b04434] hover:bg-[#f7dbd6]', key: '1' },
+  { quality: 2, label: 'Важко',     color: 'bg-[#f7f0e8] text-[#9c7c6a] hover:bg-[#efe5d9]', key: '2' },
+  { quality: 3, label: 'Нормально', color: 'bg-brand-soft text-[#a1560f] hover:bg-[#fce7d0]', key: '3' },
+  { quality: 4, label: 'Добре',     color: 'bg-[#f9dcc0] text-[#8f4d12] hover:bg-[#f3d0ac]', key: '4' },
   { quality: 5, label: 'Ідеально',  color: 'bg-brand text-white hover:bg-brand-dark',        key: '5' },
 ] as const;
 
@@ -203,7 +203,7 @@ export default function CardsPage() {
                   onChange={(e) => setTranslationInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleSaveTranslation(); }}
                   placeholder="Введіть переклад..."
-                  className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-center text-sm text-ink placeholder-dim focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all duration-200"
+                  className="w-full rounded-xl border border-line bg-paper px-3.5 py-2.5 text-center text-sm text-ink placeholder-dim focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all duration-200"
                 />
                 <div className="flex gap-2">
                   <button

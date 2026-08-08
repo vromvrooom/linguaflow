@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    /* Warm light palette — mirrors tailwind.config.ts */
-    --background: 34 21% 92%;     /* #f0ede8 */
-    --foreground: 0 0% 10%;       /* #1a1a1a */
-    --primary: 152 40% 30%;       /* #2d6a4f */
+    /* Amber / warm palette — mirrors tailwind.config.ts */
+    --background: 36 50% 96%;     /* #faf6f0 */
+    --foreground: 17 47% 12%;     /* #2c1810 */
+    --primary: 28 75% 41%;        /* #b5631a */
     --primary-foreground: 0 0% 100%;
-    --muted: 40 33% 97%;          /* #faf8f5 */
-    --muted-foreground: 30 6% 53%; /* #8b8580 */
-    --border: 37 22% 84%;         /* #ddd8cf */
+    --muted: 0 0% 100%;           /* #ffffff */
+    --muted-foreground: 22 20% 51%; /* #9c7c6a */
+    --border: 33 34% 86%;         /* #e8ddd0 */
     --radius: 0.75rem;
   }
 }
@@ -25,8 +25,8 @@
   }
 
   ::selection {
-    background-color: #d7f0e2;
-    color: #1b4332;
+    background-color: #fdf0e3;
+    color: #8f4d12;
   }
 }
 
@@ -51,7 +51,7 @@
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: #e8e4dc transparent;
+    scrollbar-color: #e8ddd0 transparent;
   }
 }
 

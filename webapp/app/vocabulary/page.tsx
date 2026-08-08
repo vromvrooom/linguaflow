@@ -26,21 +26,22 @@ interface Pagination {
   pages: number;
 }
 
+// Warm ramp — the tint deepens with the level
 const LEVEL_COLORS: Record<string, string> = {
-  A1: 'bg-[#eef7f1] text-[#3f7d5c] border-[#d6ebe0]',
-  A2: 'bg-[#eef7f1] text-[#2d6a4f] border-[#cfe7da]',
-  B1: 'bg-[#eef4ff] text-[#3b6fb8] border-[#dae5f8]',
-  B2: 'bg-[#f6f0ff] text-[#7c5cc4] border-[#e7dcfa]',
-  C1: 'bg-[#fff3e8] text-[#c96a24] border-[#f7e2cd]',
+  A1: 'bg-[#f7f0e8] text-[#9c7c6a] border-[#ebe0d2]',
+  A2: 'bg-[#fdf0e3] text-[#b5631a] border-[#f3ddc4]',
+  B1: 'bg-[#fce7d0] text-[#a1560f] border-[#f0d3b4]',
+  B2: 'bg-[#f9dcc0] text-[#8f4d12] border-[#ebc9a6]',
+  C1: 'bg-[#f5d0ab] text-[#7a400e] border-[#e5bd93]',
 };
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
 
 const INPUT_CLS =
-  'w-full px-2.5 py-1.5 rounded-lg bg-paper border border-line text-ink focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 text-sm transition-all duration-200';
+  'w-full px-2.5 py-1.5 rounded-lg bg-paper border border-line text-ink focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 text-sm transition-all duration-200';
 
 const FIELD_CLS =
-  'px-3.5 py-2.5 rounded-xl bg-paper border border-line text-ink placeholder-dim focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 text-sm transition-all duration-200';
+  'px-3.5 py-2.5 rounded-xl bg-paper border border-line text-ink placeholder-dim focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 text-sm transition-all duration-200';
 
 function authHeaders() {
   const token = localStorage.getItem('auth_token');
@@ -302,7 +303,7 @@ export default function VocabularyPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Пошук по слову або перекладу..."
-            className="w-full rounded-xl border border-line bg-surface py-2.5 pl-11 pr-3 text-sm text-ink placeholder-dim shadow-card focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/15 transition-all duration-200"
+            className="w-full rounded-xl border border-line bg-surface py-2.5 pl-11 pr-3 text-sm text-ink placeholder-dim shadow-card focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all duration-200"
           />
         </div>
         {search && (

@@ -119,7 +119,7 @@ export default function StatsPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} vertical={false} />
                 <XAxis dataKey="day" tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={CHART.tooltip} cursor={{ fill: '#2d6a4f0d' }} />
+                <Tooltip contentStyle={CHART.tooltip} cursor={{ fill: '#b5631a0d' }} />
                 <Bar dataKey="хвилин" fill={CHART.brand} radius={[6, 6, 0, 0]} maxBarSize={44} />
               </BarChart>
             </ResponsiveContainer>
@@ -154,7 +154,7 @@ export default function StatsPage() {
                       <td className="px-5 py-3.5 tabular-nums text-ink/80">{s.cardsReviewed}</td>
                       <td className="px-5 py-3.5 tabular-nums text-ink/80">{s.englishSearches}</td>
                       <td className="px-5 py-3.5">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-warm px-2.5 py-1 text-xs font-semibold tabular-nums text-[#c96a24]">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-warm px-2.5 py-1 text-xs font-semibold tabular-nums text-brand">
                           <Flame size={14} strokeWidth={2.5} /> {s.streakDay}
                         </span>
                       </td>

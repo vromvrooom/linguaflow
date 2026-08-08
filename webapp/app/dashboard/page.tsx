@@ -300,7 +300,7 @@ export default function DashboardPage() {
       <section className="mt-8 rounded-2xl border border-line bg-warm p-6 shadow-card">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/70 text-[#e07a2f]">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/70 text-brand">
               <Flame size={24} strokeWidth={2} />
             </span>
             <div>

@@ -8,17 +8,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ─── LinguaFlow palette (warm light) ─────────────────────────────────
-        paper: "#f0ede8",       // page background — warm cream
-        surface: "#faf8f5",     // cards
-        sidebar: "#f5f2ed",     // sidebar
-        line: "#ddd8cf",        // borders
-        ink: "#1a1a1a",         // primary text
-        dim: "#8b8580",         // secondary text
-        brand: "#2d6a4f",       // muted deep green
-        "brand-dark": "#1b4332",// accent hover
-        "brand-soft": "#f0faf4",// active item background
-        success: "#52b788",
+        // ─── LinguaFlow palette (amber / warm) ───────────────────────────────
+        paper: "#faf6f0",       // page background — warm cream
+        surface: "#ffffff",     // cards
+        sidebar: "#f5efe6",     // sidebar
+        line: "#e8ddd0",        // borders
+        ink: "#2c1810",         // primary text — dark brown
+        dim: "#9c7c6a",         // secondary text
+        brand: "#b5631a",       // warm amber / burnt orange
+        "brand-dark": "#8f4d12",// accent hover
+        "brand-soft": "#fdf0e3",// active item background
+        success: "#6b9e5e",
         warm: "#fff8e7",        // streak banner
 
         background: "hsl(var(--background))",

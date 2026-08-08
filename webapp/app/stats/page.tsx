@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import { Flame, Clock, Plus, Search, BookMarked, type LucideIcon } from 'lucide-react';
 import AppShell, { Spinner } from '@/components/AppShell';
+import { forceLogout } from '@/lib/auth';
 import { CHART } from '@/lib/chart';
 
 const API = '/api';
@@ -60,7 +61,7 @@ export default function StatsPage() {
 
     Promise.allSettled([
       fetch(`${API}/stats/daily`, { headers: authHeaders() }).then((r) => {
-        if (r.status === 401) router.replace('/login');
+        if (r.status === 401) forceLogout();
         return r.json();
       }),
       fetch(`${API}/stats/weekly`, { headers: authHeaders() }).then((r) => r.json()),

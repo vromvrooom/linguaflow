@@ -7,6 +7,7 @@ import {
 } from 'recharts';
 import { BookMarked, Calendar, TrendingUp, Flame, type LucideIcon } from 'lucide-react';
 import AppShell, { Spinner } from '@/components/AppShell';
+import { forceLogout } from '@/lib/auth';
 import { CHART } from '@/lib/chart';
 
 const API = '/api';
@@ -84,7 +85,7 @@ export default function ProgressPage() {
 
     Promise.allSettled([
       fetch(`${API}/stats/monthly`, { headers: authHeaders() }).then((r) => {
-        if (r.status === 401) router.replace('/login');
+        if (r.status === 401) forceLogout();
         return r.json();
       }),
       fetch(`${API}/words?limit=1`, { headers: authHeaders() }).then((r) => r.json()),

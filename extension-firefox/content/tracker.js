@@ -16,7 +16,10 @@
 
   const hostname = window.location.hostname;
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-  const isWebapp = isLocalhost && window.location.port === '3000';
+  const isWebapp =
+    hostname === 'localhost' ||
+    hostname === 'lingua.varom.pp.ua' ||
+    hostname === 'linguaflow1.duckdns.org';
   const isChromeExtension = window.location.protocol === 'chrome-extension:';
 
   // Автологін: якщо відкрита webapp — читаємо токен і надсилаємо в background

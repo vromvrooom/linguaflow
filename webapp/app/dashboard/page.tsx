@@ -7,6 +7,7 @@ import {
   RotateCcw, Library, LineChart, ArrowRight, type LucideIcon,
 } from 'lucide-react';
 import AppShell, { Spinner } from '@/components/AppShell';
+import { forceLogout } from '@/lib/auth';
 
 const API = '/api';
 
@@ -210,13 +211,20 @@ export default function DashboardPage() {
     setEmail(localStorage.getItem('auth_email') ?? '');
 
     const h = authHeaders();
+    // A rejected token must sign the user out, not silently render zeroes.
+    const get = async (path: string) => {
+      const r = await fetch(`${API}${path}`, { headers: h });
+      if (r.status === 401) { forceLogout(); throw new Error('unauthorized'); }
+      return r.json();
+    };
+
     const [wordsRes, cardsRes, planRes, weeklyRes, dailyRes, recentRes] = await Promise.allSettled([
-      fetch(`${API}/words?limit=1`, { headers: h }).then((r) => r.json()),
-      fetch(`${API}/cards/due?limit=100`, { headers: h }).then((r) => r.json()),
-      fetch(`${API}/plan`, { headers: h }).then((r) => r.json()),
-      fetch(`${API}/stats/weekly`, { headers: h }).then((r) => r.json()),
-      fetch(`${API}/stats/daily`, { headers: h }).then((r) => r.json()),
-      fetch(`${API}/words?limit=8&sort=newest`, { headers: h }).then((r) => r.json()),
+      get('/words?limit=1'),
+      get('/cards/due?limit=100'),
+      get('/plan'),
+      get('/stats/weekly'),
+      get('/stats/daily'),
+      get('/words?limit=8&sort=newest'),
     ]);
 
     const weekly: DailyStat[] =

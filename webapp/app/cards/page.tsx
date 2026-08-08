@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, ArrowLeft, Plus, Loader2 } from 'lucide-react';
 import AppShell, { Spinner } from '@/components/AppShell';
+import { forceLogout } from '@/lib/auth';
 
 const API = '/api';
 
@@ -51,7 +52,7 @@ export default function CardsPage() {
   useEffect(() => {
     if (!localStorage.getItem('auth_token')) { router.replace('/login'); return; }
     fetch(`${API}/cards/due?limit=100`, { headers: authHeaders() })
-      .then((r) => { if (r.status === 401) router.replace('/login'); return r.json(); })
+      .then((r) => { if (r.status === 401) forceLogout(); return r.json(); })
       .then((data) => { if (Array.isArray(data)) setCards(data); })
       .catch(() => {})
       .finally(() => setLoading(false));

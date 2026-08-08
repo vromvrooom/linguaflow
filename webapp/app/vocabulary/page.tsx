@@ -6,6 +6,7 @@ import {
   ChevronLeft, ChevronRight, BookOpen,
 } from 'lucide-react';
 import AppShell, { Spinner } from '@/components/AppShell';
+import { forceLogout } from '@/lib/auth';
 
 const API = '/api';
 const LIMIT = 20;
@@ -83,7 +84,7 @@ export default function VocabularyPage() {
       const params = new URLSearchParams({ page: String(page), limit: String(LIMIT), sort: sortBy });
       if (level) params.set('level', level);
       const res = await fetch(`${API}/words?${params}`, { headers: authHeaders() });
-      if (res.status === 401) { router.replace('/login'); return; }
+      if (res.status === 401) { forceLogout(); return; }
       const data = await res.json();
       setWords(data.data ?? []);
       setPagination(data.pagination ?? { page, total: 0, pages: 0 });
@@ -92,7 +93,7 @@ export default function VocabularyPage() {
     } finally {
       setLoading(false);
     }
-  }, [router, levelFilter, sort]);
+  }, [levelFilter, sort]);
 
   useEffect(() => {
     if (!localStorage.getItem('auth_token')) { router.replace('/login'); return; }
@@ -200,7 +201,7 @@ export default function VocabularyPage() {
     setDeleting(id);
     try {
       const res = await fetch(`${API}/words/${id}`, { method: 'DELETE', headers: authHeaders() });
-      if (res.status === 401) { router.replace('/login'); return; }
+      if (res.status === 401) { forceLogout(); return; }
       if (!res.ok) return;
       setWords((prev) => prev.filter((w) => w.id !== id));
       setPagination((prev) => ({ ...prev, total: Math.max(0, prev.total - 1) }));

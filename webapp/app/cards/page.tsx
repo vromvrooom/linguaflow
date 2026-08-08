@@ -19,13 +19,13 @@ interface SrsCard {
   };
 }
 
-// Amber ramp: a soft red for a miss, then warming toward the accent
+// Neutral ramp: confidence reads as weight, from faint to solid black
 const RATINGS = [
-  { quality: 0, label: 'Не знав',   color: 'bg-[#fbeae7] text-[#b04434] hover:bg-[#f7dbd6]', key: '1' },
-  { quality: 2, label: 'Важко',     color: 'bg-[#f7f0e8] text-[#9c7c6a] hover:bg-[#efe5d9]', key: '2' },
-  { quality: 3, label: 'Нормально', color: 'bg-brand-soft text-[#a1560f] hover:bg-[#fce7d0]', key: '3' },
-  { quality: 4, label: 'Добре',     color: 'bg-[#f9dcc0] text-[#8f4d12] hover:bg-[#f3d0ac]', key: '4' },
-  { quality: 5, label: 'Ідеально',  color: 'bg-brand text-white hover:bg-brand-dark',        key: '5' },
+  { quality: 0, label: 'Не знав',   color: 'border border-line bg-surface text-dim hover:bg-[#fafafa] hover:text-ink', key: '1' },
+  { quality: 2, label: 'Важко',     color: 'bg-[#f4f4f5] text-[#52525b] hover:bg-[#e4e4e7]',  key: '2' },
+  { quality: 3, label: 'Нормально', color: 'bg-[#e4e4e7] text-[#3f3f46] hover:bg-[#d4d4d8]',  key: '3' },
+  { quality: 4, label: 'Добре',     color: 'bg-[#52525b] text-white hover:bg-[#3f3f46]',      key: '4' },
+  { quality: 5, label: 'Ідеально',  color: 'bg-brand text-white hover:bg-brand-dark',         key: '5' },
 ] as const;
 
 function authHeaders() {

@@ -26,13 +26,13 @@ interface Pagination {
   pages: number;
 }
 
-// Warm ramp — the tint deepens with the level
+// Neutral ramp — contrast deepens with the level
 const LEVEL_COLORS: Record<string, string> = {
-  A1: 'bg-[#f7f0e8] text-[#9c7c6a] border-[#ebe0d2]',
-  A2: 'bg-[#fdf0e3] text-[#b5631a] border-[#f3ddc4]',
-  B1: 'bg-[#fce7d0] text-[#a1560f] border-[#f0d3b4]',
-  B2: 'bg-[#f9dcc0] text-[#8f4d12] border-[#ebc9a6]',
-  C1: 'bg-[#f5d0ab] text-[#7a400e] border-[#e5bd93]',
+  A1: 'bg-[#fafafa] text-[#a1a1aa] border-[#e4e4e7]',
+  A2: 'bg-[#f4f4f5] text-[#71717a] border-[#e4e4e7]',
+  B1: 'bg-[#f4f4f5] text-[#52525b] border-[#d4d4d8]',
+  B2: 'bg-[#e4e4e7] text-[#3f3f46] border-[#d4d4d8]',
+  C1: 'bg-[#18181b] text-white border-[#18181b]',
 };
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];

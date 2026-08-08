@@ -169,7 +169,7 @@ export default function ProgressPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} vertical={false} />
                 <XAxis dataKey="date" tick={{ fill: CHART.tick, fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={20} />
                 <YAxis tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                <Tooltip contentStyle={CHART.tooltip} cursor={{ fill: '#b5631a0d' }} />
+                <Tooltip contentStyle={CHART.tooltip} cursor={{ fill: '#18181b0d' }} />
                 <Bar dataKey="хвилини" fill={CHART.success} radius={[6, 6, 0, 0]} maxBarSize={28} />
               </BarChart>
             </ResponsiveContainer>

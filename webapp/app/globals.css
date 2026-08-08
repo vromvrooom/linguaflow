@@ -4,14 +4,14 @@
 
 @layer base {
   :root {
-    /* Amber / warm palette — mirrors tailwind.config.ts */
-    --background: 36 50% 96%;     /* #faf6f0 */
-    --foreground: 17 47% 12%;     /* #2c1810 */
-    --primary: 28 75% 41%;        /* #b5631a */
+    /* Neutral / slate palette — mirrors tailwind.config.ts */
+    --background: 0 0% 98%;       /* #fafafa */
+    --foreground: 240 10% 4%;     /* #09090b */
+    --primary: 240 6% 10%;        /* #18181b */
     --primary-foreground: 0 0% 100%;
     --muted: 0 0% 100%;           /* #ffffff */
-    --muted-foreground: 22 20% 51%; /* #9c7c6a */
-    --border: 33 34% 86%;         /* #e8ddd0 */
+    --muted-foreground: 240 4% 46%; /* #71717a */
+    --border: 240 6% 90%;         /* #e4e4e7 */
     --radius: 0.75rem;
   }
 }
@@ -25,18 +25,18 @@
   }
 
   ::selection {
-    background-color: #fdf0e3;
-    color: #8f4d12;
+    background-color: #18181b;
+    color: #ffffff;
   }
 }
 
 @layer components {
-  /* Cards rise slightly on hover — the whole app shares one motion language */
+  /* Cards do not move or bloom — the border simply darkens, Vercel-style. */
   .lift {
-    @apply transition-all duration-200 ease-out;
+    @apply transition-colors duration-200 ease-out;
   }
   .lift:hover {
-    @apply -translate-y-0.5 shadow-card-hover;
+    @apply border-line-strong;
   }
 
   /* Buttons settle inward on click */
@@ -51,7 +51,7 @@
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: #e8ddd0 transparent;
+    scrollbar-color: #e4e4e7 transparent;
   }
 }
 
@@ -59,7 +59,7 @@
   .lift, .press {
     transition: none;
   }
-  .lift:hover, .press:active {
+  .press:active {
     transform: none;
   }
 }

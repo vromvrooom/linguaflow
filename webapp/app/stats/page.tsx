@@ -119,7 +119,7 @@ export default function StatsPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} vertical={false} />
                 <XAxis dataKey="day" tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={CHART.tooltip} cursor={{ fill: '#b5631a0d' }} />
+                <Tooltip contentStyle={CHART.tooltip} cursor={{ fill: '#18181b0d' }} />
                 <Bar dataKey="хвилин" fill={CHART.brand} radius={[6, 6, 0, 0]} maxBarSize={44} />
               </BarChart>
             </ResponsiveContainer>

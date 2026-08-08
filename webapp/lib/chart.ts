@@ -1,14 +1,14 @@
 /** Recharts theme shared by the stats and progress pages. */
 export const CHART = {
-  grid: '#e8ddd0',
-  tick: '#9c7c6a',
-  brand: '#b5631a',
-  success: '#6b9e5e',
+  grid: '#e4e4e7',
+  tick: '#71717a',
+  brand: '#18181b',
+  success: '#a1a1aa',
   tooltip: {
     background: '#ffffff',
-    border: '1px solid #e8ddd0',
+    border: '1px solid #e4e4e7',
     borderRadius: '12px',
-    color: '#2c1810',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+    color: '#09090b',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
   },
 } as const;

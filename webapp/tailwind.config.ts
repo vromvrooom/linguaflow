@@ -8,18 +8,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ─── LinguaFlow palette (amber / warm) ───────────────────────────────
-        paper: "#faf6f0",       // page background — warm cream
+        // ─── LinguaFlow palette (neutral / slate) ────────────────────────────
+        paper: "#fafafa",       // page background
         surface: "#ffffff",     // cards
-        sidebar: "#f5efe6",     // sidebar
-        line: "#e8ddd0",        // borders
-        ink: "#2c1810",         // primary text — dark brown
-        dim: "#9c7c6a",         // secondary text
-        brand: "#b5631a",       // warm amber / burnt orange
-        "brand-dark": "#8f4d12",// accent hover
-        "brand-soft": "#fdf0e3",// active item background
-        success: "#6b9e5e",
-        warm: "#fff8e7",        // streak banner
+        sidebar: "#f4f4f5",     // sidebar
+        line: "#e4e4e7",        // borders
+        "line-strong": "#d4d4d8", // border on card hover
+        ink: "#09090b",         // primary text
+        dim: "#71717a",         // secondary text
+        brand: "#18181b",       // accent — near black
+        "brand-dark": "#000000",// accent hover
+        "brand-soft": "#f4f4f5",// active / subtle fill
+        success: "#18181b",     // completion reads as neutral, not coloured
+        warm: "#f4f4f5",        // streak banner
 
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -34,9 +35,9 @@ const config: Config = {
         border: "hsl(var(--border))",
       },
       boxShadow: {
-        card: "0 2px 8px rgba(0,0,0,0.06)",
-        "card-hover": "0 10px 24px rgba(0,0,0,0.09)",
-        sidebar: "1px 0 3px rgba(0,0,0,0.04)",
+        card: "0 1px 2px rgba(0,0,0,0.04)",
+        "card-hover": "0 1px 3px rgba(0,0,0,0.06)",
+        sidebar: "none",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -162,7 +162,7 @@ export default function ProgressPage() {
         <h2 className="text-xs font-semibold uppercase tracking-wider text-dim">Час занурення по днях (хв)</h2>
         <div className="mt-4 rounded-2xl border border-line bg-surface p-6 shadow-card">
           {!hasMinuteData ? (
-            <EmptyChart title="Даних поки немає" hint="Встанови розширення Chrome щоб відстежувати час" />
+            <EmptyChart title="Даних поки немає" hint="Дані з'являться після активного використання" />
           ) : (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={minutesChart} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>

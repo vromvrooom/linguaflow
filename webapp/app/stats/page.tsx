@@ -108,17 +108,26 @@ export default function StatsPage() {
           Активність за 7 днів (хв/день)
         </h2>
         <div className="mt-4 rounded-2xl border border-line bg-surface p-6 shadow-card">
-          {chartData.every((d) => d.хвилин === 0) ? (
+          {/* /stats/weekly always returns 7 points, padding untracked days with
+              zeroes — so an all-zero week is still a week worth plotting. The
+              placeholder is only for a genuinely empty response. */}
+          {chartData.length === 0 ? (
             <div className="flex h-40 flex-col items-center justify-center gap-2">
               <p className="font-medium text-ink">Даних поки немає</p>
-              <p className="text-sm text-dim">Встанови розширення Chrome щоб відстежувати час</p>
+              <p className="text-sm text-dim">Дані з&apos;являться після активного використання</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART.grid} vertical={false} />
                 <XAxis dataKey="day" tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: CHART.tick, fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={{ fill: CHART.tick, fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                  allowDecimals={false}
+                  domain={[0, (max: number) => Math.max(10, Math.ceil(max))]}
+                />
                 <Tooltip contentStyle={CHART.tooltip} cursor={{ fill: '#18181b0d' }} />
                 <Bar dataKey="хвилин" fill={CHART.brand} radius={[6, 6, 0, 0]} maxBarSize={44} />
               </BarChart>
